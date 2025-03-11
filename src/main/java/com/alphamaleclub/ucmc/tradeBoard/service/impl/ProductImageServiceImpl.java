@@ -1,7 +1,7 @@
 package com.alphamaleclub.ucmc.tradeBoard.service.impl;
 
+import com.alphamaleclub.ucmc.image.domain.PostType;
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
-import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import com.alphamaleclub.ucmc.tradeBoard.repository.ProductImageRepository;
 import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageService;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +17,17 @@ public class ProductImageServiceImpl implements ProductImageService {
     private final ProductImageRepository productImageRepository;
 
     @Override
-    public ProductImage createProductImage(TradePost post, String imageUrl) {
+    public ProductImage createTradeProductImage(Long postNum, String imageUrl) {
 
         ProductImage productImage = ProductImage.builder()
-                .tradePost(post)
+                .postType(PostType.AUCTION)
+                .postNumber(postNum)
                 .imageUrl(imageUrl)
                 .build();
         productImageRepository.save(productImage);
 
         return productImage;
     }
+
+
 }

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,8 +45,6 @@ public class TradePostServiceImpl implements TradePostService {
         // 컨버트한 바이트 배열 리스트.
         List<byte[]> files = productImageConvertService.convert(sourceImage);
 
-        // 빈 product image 리스트 생성
-        List<ProductImage> images = new ArrayList<>();
 
         for (byte[] fileData : files) {
 
@@ -59,15 +56,11 @@ public class TradePostServiceImpl implements TradePostService {
             System.out.println(imageUrl);
 
             // product image 객체 생성
-            ProductImage productImage = productImageService.createProductImage(tradePost, imageUrl);
-
-            // product 리스트에 추가
-            images.add(productImage);
+            ProductImage productImage = productImageService.createTradeProductImage(tradePost.getPostId(), imageUrl);
 
         }
 
-        //변경 감지로 추가.
-        tradePost.setImages(images);
+
 
 
         return "ok";

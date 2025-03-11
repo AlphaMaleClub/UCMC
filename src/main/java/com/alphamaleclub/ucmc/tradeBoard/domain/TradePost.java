@@ -43,9 +43,6 @@ public class TradePost {
     @JoinColumn(name ="member_id", nullable = false)
     private Member member;
 
-    @Setter
-    @OneToMany(mappedBy = "tradePost", fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true )
-    private List<ProductImage> images = new ArrayList<>();
 
     @Builder
     public TradePost (String title, Long price, String locate, String contents,

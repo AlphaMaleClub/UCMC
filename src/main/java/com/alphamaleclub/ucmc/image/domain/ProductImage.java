@@ -21,14 +21,15 @@ public class ProductImage {
     @Column(nullable = false, unique = true)
     private String imageUrl; // S3 등록 되는 URL 경로? -> 이게 실질적인 이름//
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trade_post_id", nullable = false)
-    private TradePost tradePost;
+    private PostType postType;
+
+    private Long postNumber;
 
     @Builder
-    public ProductImage(String imageUrl, TradePost tradePost) {
+    public ProductImage(PostType postType,Long postNumber, String imageUrl) {
+        this.postType = postType;
+        this.postNumber = postNumber;
         this.imageUrl = imageUrl;
-        this.tradePost = tradePost;
     }
 
 }
