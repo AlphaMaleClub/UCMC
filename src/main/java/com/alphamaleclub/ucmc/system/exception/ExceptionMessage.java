@@ -22,5 +22,14 @@ public class ExceptionMessage {
 
     }
 
+    public static class Image {
+        public static final String IMAGES_FILES_LIMIT_EXCEEDED_EXCEPTION = "파일이 5개 이상입니다";
+        public static final String IMAGE_CONVERT_EXCEPTION = "convert 중 예외가 발생 하였습니다";
+        public static final String IMAGE_FILES_EMPTY_EXCEPTION = "이미지 파일이 들어 있지 않습니다";
+        public static final String IMAGE_FILE_TOO_LARGE_EXCEPTION = "파일의 크기가 허용치보다 큽니다.";
+        public static final String IMAGE_DIMENSION_EXCEEDED_EXCEPTION = "파일의 폭 또는 높이가 초과되었습니다.";
+        public static final String IMAGE_DIMENSION_TOO_SMALL_EXCEPTION = "파일의 폭 또는 높이가 너무 작습니다.";
+        public static final String INVALID_IMAGE_FORMAT_EXCEPTION = "지원되지 않는 형식이거나 손상된 파일일 수 있습니다";
+    }
 
 }
