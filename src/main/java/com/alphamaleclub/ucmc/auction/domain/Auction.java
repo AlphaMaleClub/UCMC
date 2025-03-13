@@ -1,5 +1,7 @@
 package com.alphamaleclub.ucmc.auction.domain;
 
+import com.alphamaleclub.ucmc.auction.dto.AuctionRequest;
+import com.alphamaleclub.ucmc.auction.dto.AuctionResponse;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionAlreadyFinishedException;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionNotEditableException;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionPriceTooLowException;
@@ -46,9 +48,18 @@ public class Auction {
         auction.price = price;
         auction.description = description;
         auction.createdAt = LocalDateTime.now();
-
         auction.refreshStatus();
         return auction;
+    }
+
+    public static Auction from(AuctionRequest dto) {
+        return Auction.of(
+                dto.getTitle(),
+                dto.getContent(),
+                dto.getEndTime(),
+                dto.getPrice(),
+                dto.getDescription()
+        );
     }
 
     // 상태 갱신 메서드
@@ -90,6 +101,19 @@ public class Auction {
         if (this.hasBids) {
             throw new AuctionNotEditableException("이미 입찰자가 있으므로 삭제가 불가능합니다.");
         }
+    }
+
+    public AuctionResponse toDto() {
+        return AuctionResponse.builder()
+                .id(this.id)
+                .title(this.title)
+                .content(this.content)
+                .endTime(this.endTime)
+                .price(this.price)
+                .createdAt(this.createdAt)
+                .description(this.description)
+                .status(this.status)
+                .build();
     }
 
 }
