@@ -21,6 +21,8 @@ public class ProductImage {
     @Column(nullable = false, unique = true)
     private String imageUrl; // S3 등록 되는 URL 경로? -> 이게 실질적인 이름//
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "post_type")
     private PostType postType;
 
     private Long postNumber;
@@ -29,6 +31,10 @@ public class ProductImage {
     public ProductImage(PostType postType,Long postNumber, String imageUrl) {
         this.postType = postType;
         this.postNumber = postNumber;
+        this.imageUrl = imageUrl;
+    }
+
+    public void updateProductImage(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 

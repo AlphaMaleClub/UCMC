@@ -20,7 +20,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     public ProductImage createTradeProductImage(Long postNum, String imageUrl) {
 
         ProductImage productImage = ProductImage.builder()
-                .postType(PostType.AUCTION)
+                .postType(PostType.TRADE)
                 .postNumber(postNum)
                 .imageUrl(imageUrl)
                 .build();

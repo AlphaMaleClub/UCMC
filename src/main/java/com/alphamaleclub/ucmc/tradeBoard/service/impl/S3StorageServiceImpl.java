@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -38,6 +39,16 @@ public class S3StorageServiceImpl implements S3StorageService {
                 RequestBody.fromBytes(file));
 
         return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
+    @Override
+    public void delete(String fileName) {
+        s3Client.deleteObject(
+                DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fileName)
+                        .build()
+        );
     }
 
 }
