@@ -1,13 +1,13 @@
 package com.alphamaleclub.ucmc.tradeBoard.service.impl;
 
 
+import com.alphamaleclub.ucmc.image.domain.PostType;
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.domain.MemberRepository;
+import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
-import com.alphamaleclub.ucmc.tradeBoard.dto.CreateBoardRequest;
-import com.alphamaleclub.ucmc.tradeBoard.dto.UpdatePostRequest;
-import com.alphamaleclub.ucmc.tradeBoard.repository.ProductImageRepository;
+import com.alphamaleclub.ucmc.tradeBoard.dto.*;
 import com.alphamaleclub.ucmc.tradeBoard.repository.TradePostRepository;
 import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageConvertService;
 import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageService;
@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -29,7 +31,6 @@ import java.util.UUID;
 public class TradePostServiceImpl implements TradePostService {
 
     private final TradePostRepository tradePostRepository;
-    private final ProductImageRepository productImageRepository;
 
     private final ProductImageConvertService productImageConvertService;
     private final ProductImageService productImageService;
@@ -37,8 +38,12 @@ public class TradePostServiceImpl implements TradePostService {
 
     private final MemberRepository memberRepository;
 
+    String baseUrl = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
+
+
+
     @Override
-    public String createTradePost(CreateBoardRequest request, List<MultipartFile> sourceImage) throws IOException {
+    public KanbanBoardMessageResponse createTradePost(CreateTradeBoardRequest request, List<MultipartFile> sourceImage) throws IOException {
 
         // product image를 추가 하려면 먼저 tradePost를 선 생성 해야한다.
         // member 파라미터로 받아서 따로 추가해주는 작업 해야함, principle 사용
@@ -63,14 +68,17 @@ public class TradePostServiceImpl implements TradePostService {
 
         }
 
+        return KanbanBoardMessageResponse.builder()
+                .message("Success Created Trade Post")
+                .result(true)
+                .build();
 
-        return "ok";
 
     }
 
     // member 파라미터로 받아서 따로 추가해주는 작업 해야함, principle 사용
     @Override
-    public TradePost saveTradePost(CreateBoardRequest request) {
+    public TradePost saveTradePost(CreateTradeBoardRequest request) {
 
         // 현재는 더미 member
         Member member = Member.builder()
@@ -94,8 +102,8 @@ public class TradePostServiceImpl implements TradePostService {
     }
 
 
-
-    public String updateTradePost(UpdatePostRequest request, List<MultipartFile> sourceImage) throws IOException {
+    @Override
+    public KanbanBoardMessageResponse updateTradePost(UpdatePostRequest request, List<MultipartFile> sourceImage) throws IOException {
 
 
         Long postNumber = request.getPostNumber();
@@ -112,7 +120,7 @@ public class TradePostServiceImpl implements TradePostService {
         List<byte[]> newImage = productImageConvertService.convert(sourceImage);
 
         // 기존 이미지 가져오기
-        List<ProductImage> byPostTypeAndPostNumber = productImageRepository.findByPostTypeAndPostNumber(request.getPostType(), postNumber);
+        List<ProductImage> byPostTypeAndPostNumber = productImageService.getTradeProductImagesByPostTypeAndPostNumber(request.getPostType(),postNumber);
 
         int minSize = Math.min(newImage.size(), byPostTypeAndPostNumber.size());
 
@@ -134,13 +142,11 @@ public class TradePostServiceImpl implements TradePostService {
                     log.info(i +"회차 조회"+"productImage = {}", productImage);
                     String imageUrl = productImage.getImageUrl();
 
-                    String baseUrl = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
-
                     String key = imageUrl.replaceFirst(baseUrl, "");
 
                     s3StorageService.delete(key);
 
-                    productImageRepository.delete(productImage);
+                    productImageService.deleteProductImage(productImage);
 
                     log.info("새 < 기 if 2 " + i);
                 }
@@ -174,8 +180,83 @@ public class TradePostServiceImpl implements TradePostService {
             }
         }
 
-        return "ok";
+        return KanbanBoardMessageResponse.builder()
+                .message("Success Updated Trade Post")
+                .result(true)
+                .build();
+
     }
+
+    @Override
+    public KanbanBoardMessageResponse deleteTradePost(DeleteTradePostRequest request) {
+
+        PostType postType = request.getPostType();
+        Long postNum = request.getPostNumber();
+
+        // productImage type을 가져온다.
+        List<ProductImage> productImages = productImageService.getTradeProductImagesByPostTypeAndPostNumber(postType,postNum);
+
+        // for eact 문을 돌려서 s3 버킷의 이미지 및 db의  productImage 를 지운다.
+        for (ProductImage productImage : productImages) {
+
+            String imageUrl = productImage.getImageUrl();
+
+            String key = imageUrl.replaceFirst(baseUrl, "");
+
+            s3StorageService.delete(key);
+
+            productImageService.deleteProductImage(productImage);
+
+        }
+
+        // db에서 tradePost 도 지운다.
+        tradePostRepository.deleteById(postNum);
+
+        return KanbanBoardMessageResponse.builder()
+                .message("Success Deleted Trade Post")
+                .result(true)
+                .build();
+
+    }
+
+    @Override
+    public TradePostAndProductImageResponse getTradePost(Long postId) {
+        Long postNum = postId;
+
+        Optional<TradePost> byId = tradePostRepository.findById(postNum);
+        TradePost tradePost = byId.orElseThrow();
+
+        List<ProductImage> productImages = productImageService.getTradeProductImagesByPostTypeAndPostNumber(PostType.TRADE,postNum);
+
+        return TradePostAndProductImageResponse.builder()
+                .title(tradePost.getTitle())
+                .contents(tradePost.getContents())
+                .price(tradePost.getPrice())
+                .status(tradePost.getStatus())
+                .locate(tradePost.getLocate())
+                .createdAt(tradePost.getCreatedAt())
+                .nickName(tradePost.getMember().getNickName())
+                .productImages(productImages)
+                .build();
+
+    }
+
+    @Override
+    public KanbanBoardMessageResponse updateOnlyStatusTradePost(Long postId, Status status) {
+
+        Optional<TradePost> byId = tradePostRepository.findById(postId);
+        TradePost tradePost = byId.orElseThrow();
+
+        tradePost.updateTradePost(status,tradePost.getTitle(),tradePost.getPrice(),tradePost.getLocate(),tradePost.getContents());
+
+        return KanbanBoardMessageResponse.builder()
+                .message("Success UpdateOnly Status To Trade Post")
+                .result(true)
+                .build();
+
+    }
+
+
 
 
 }

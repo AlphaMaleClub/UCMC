@@ -2,19 +2,17 @@ package com.alphamaleclub.ucmc.tradeBoard.dto;
 
 import com.alphamaleclub.ucmc.image.domain.PostType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateBoardRequest {
+public class DeleteTradePostRequest {
 
-    String title;
-    String content;
-    Long price;
-    String Locate;
+    PostType postType;
 
+    Long postNumber;
 }

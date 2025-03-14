@@ -1,31 +1,19 @@
 package com.alphamaleclub.ucmc.tradeBoard.dto;
 
-
-import com.alphamaleclub.ucmc.image.domain.PostType;
-import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdatePostRequest {
-
-    PostType postType;
-
-    Long postNumber;
-
-    Status status;
+public class CreateTradeBoardRequest {
 
     String title;
-
     String content;
-
     Long price;
-
     String Locate;
 
 }

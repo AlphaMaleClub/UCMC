@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -29,5 +31,18 @@ public class ProductImageServiceImpl implements ProductImageService {
         return productImage;
     }
 
+    @Override
+    public List<ProductImage> getTradeProductImagesByPostTypeAndPostNumber(PostType postType, Long postNumber) {
+
+        List<ProductImage> images = productImageRepository.findByPostTypeAndPostNumber(postType, postNumber);
+
+        return images;
+
+    }
+
+    @Override
+    public void deleteProductImage(ProductImage productImage) {
+        productImageRepository.delete(productImage);
+    }
 
 }
