@@ -9,4 +9,6 @@ public interface TradePostRepository extends JpaRepository<TradePost, Long> {
 
     @Override
     Optional<TradePost> findById(Long aLong);
+
+
 }

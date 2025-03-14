@@ -55,6 +55,14 @@ public class TradePost {
     }
 
 
+    public void  updateTradePost (Status status,String title, Long price, String locate, String contents) {
+        this.status = status;
+        this.title = title;
+        this.price = price;
+        this.locate = locate;
+        this.contents = contents;
+    }
+
 
 
 
