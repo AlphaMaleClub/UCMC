@@ -9,6 +9,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auctions")
@@ -19,8 +24,9 @@ public class AuctionController {
 
     // 경매글 작성
     @PostMapping
-    public ResponseEntity<Long> create(@RequestBody AuctionRequest dto) {
-        Long auctionId = auctionService.createAuction(dto);
+    public ResponseEntity<Long> create(@RequestBody AuctionRequest dto,
+                                       @RequestParam("images") List<MultipartFile> imageFiles) throws IOException {
+        Long auctionId = auctionService.createAuction(dto, imageFiles);
         return ResponseEntity.ok(auctionId);
     }
 
@@ -65,6 +71,22 @@ public class AuctionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         auctionService.deleteAuction(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 경매글 첨부 사진 수정: 수정할 이미지 ID와 새 파일을 매핑하여 받음
+    @PatchMapping("/{id}/images")
+    public ResponseEntity<Void> updateImages(@PathVariable Long id,
+                                             @RequestParam Map<Long, MultipartFile> imagesToUpdate) throws IOException {
+        auctionService.updateAuctionImages(id, imagesToUpdate);
+        return ResponseEntity.ok().build();
+    }
+
+    // 경매글 첨부 사진 삭제: 삭제할 이미지 ID 리스트를 전달 (파라미터가 없으면 전체 삭제)
+    @DeleteMapping("/{id}/images")
+    public ResponseEntity<Void> deleteImages(@PathVariable Long id,
+                                             @RequestParam(required = false) List<Long> imageIds) {
+        auctionService.deleteAuctionImages(id, imageIds);
         return ResponseEntity.noContent().build();
     }
 }

@@ -2,6 +2,7 @@ package com.alphamaleclub.ucmc.auction.domain;
 
 import com.alphamaleclub.ucmc.auction.dto.AuctionRequest;
 import com.alphamaleclub.ucmc.auction.dto.AuctionResponse;
+import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionAlreadyFinishedException;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionNotEditableException;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionPriceTooLowException;
@@ -10,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "auction")
@@ -30,7 +33,27 @@ public class Auction {
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;
 
-    //추가로 이미지 받아와야함.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name ="member_id", nullable = false)
+    private Member member;
+
+    @OneToMany(mappedBy = "auction", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AuctionImage> images = new ArrayList<>();
+
+    // AuctionImage 리스트를 수정이 가능한 컬렉션으로 반환
+    public List<AuctionImage> getModifiableImages() {
+        return images;
+    }
+
+    // AuctionImage 추가
+    public void addImage(AuctionImage image) {
+        images.add(image);
+    }
+
+    // 특정 이미지 삭제
+    public void removeImage(AuctionImage image) {
+        images.remove(image);
+    }
 
     // 입찰 발생 시 수정/삭제 불가
     private boolean hasBids = false;
