@@ -100,7 +100,7 @@ public class AuctionServiceImpl {
                     .findFirst()
                     .orElseThrow(() -> new ImageNotFoundException("해당 이미지가 존재하지 않습니다."));
 
-            // 새 파일 업로드 (기존 파일 삭제 후 새로운 파일 업로드하는 로직 포함 가능)
+            // 새 파일 업로드
             String newFileName = UUID.randomUUID().toString();
             String newImageUrl = s3StorageService.upload(newFile.getBytes(), newFileName);
 
