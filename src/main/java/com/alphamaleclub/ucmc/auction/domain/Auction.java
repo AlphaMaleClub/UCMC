@@ -8,6 +8,7 @@ import com.alphamaleclub.ucmc.system.exception.auction.AuctionNotEditableExcepti
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionPriceTooLowException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ public class Auction {
     private LocalDateTime createdAt;
     private String description;
 
+    @Getter
     @Enumerated(EnumType.STRING)
     private AuctionStatus status;
 
@@ -92,6 +94,13 @@ public class Auction {
             this.status = AuctionStatus.FINISHED;
         } else {
             this.status = AuctionStatus.ONGOING;
+        }
+    }
+
+    // 경매종료 시간이 지난 경매건에 대한 상태변경처리용 메서드
+    public void updateStatus(AuctionStatus newStatus) {
+        if (this.status != newStatus) {
+            this.status = newStatus;
         }
     }
 

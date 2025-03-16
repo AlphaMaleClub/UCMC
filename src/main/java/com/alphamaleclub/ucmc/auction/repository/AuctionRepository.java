@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     // 제목과 작성자 닉네임을 기준으로 경매글 검색
@@ -30,4 +33,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
             AuctionStatus status,
             Pageable pageable
     );
+
+    // 상태 기준 검색
+    Page<Auction> findByStatus(AuctionStatus status, Pageable pageable);
 }
