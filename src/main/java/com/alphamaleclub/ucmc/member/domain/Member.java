@@ -79,6 +79,4 @@ public class Member {
         log.info("{} 회원가입 완료", this.getAccountId()); //추후 이메일로 가입환영 메일 발송.
     }
 
-
-
 }
