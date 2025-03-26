@@ -4,10 +4,10 @@ import com.alphamaleclub.ucmc.member.domain.Member;
 
 public interface MemberService {
 
-    Member getMember(Long id);
+    Member getMemberById(Long id);
 
-    Member getMember(String email);
+    Member getMemberByEmail(String email);
 
-
+    Member getMemberByAccountId(String accountId);
 
 }

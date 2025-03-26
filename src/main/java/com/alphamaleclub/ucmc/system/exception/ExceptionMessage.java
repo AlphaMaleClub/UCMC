@@ -26,6 +26,8 @@ public class ExceptionMessage {
 
         public static final String ACCOUNT_ID_IS_NOT_FOUND = "ID가 올바르지 않습니다.";
         public static final String KEY_NUMBER_IS_NOT_FOUND = "Key 값이 올바르지 않습니다.";
+        public static final String EMAIL_IS_NOT_FOUND = "해당 Email을 가진 유저가 없습니다.";
+
 
     }
 

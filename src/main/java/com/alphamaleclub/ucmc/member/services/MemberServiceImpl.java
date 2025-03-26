@@ -15,10 +15,12 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.Objects;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class MemberServiceImpl extends DefaultOAuth2UserService implements MemberService, UserDetailsService {
 
@@ -26,15 +28,25 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Member getMember(Long id) {
+    public Member getMemberById(Long id) {
 
         return memberRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(ExceptionMessage.Member.KEY_NUMBER_IS_NOT_FOUND)
         );
     }
 
+
+    public Member getMemberByEmail(String email){
+
+        return memberRepository.findByEmail(email).orElseThrow(
+                ()-> new UserNotFoundException(ExceptionMessage.Member.EMAIL_IS_NOT_FOUND)
+        );
+    }
+
+
+
     @Override
-    public Member getMember(String accountId) {
+    public Member getMemberByAccountId(String accountId) {
 
         return memberRepository.findByAccountId(accountId).orElseThrow(
                 () -> new UserNotFoundException(ExceptionMessage.Member.ACCOUNT_ID_IS_NOT_FOUND)
@@ -44,14 +56,25 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     @Override
     public UserDetails loadUserByUsername(String accountId) throws UsernameNotFoundException {
 
-        Member findMember = this.getMember(accountId);
+        Member findMember = this.getMemberByAccountId(accountId);
         return CustomUserDetails.memberToDetails(findMember);
     }
 
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        //여기까지
+
+        OAuth2User oAuth2User = getOauth2User(userRequest);
+        Member findMember = getMemberByEmail(oAuth2User.getAttributes().get("email").toString());
+
+
 
         return super.loadUser(userRequest);
     }
+
+    public OAuth2User getOauth2User(OAuth2UserRequest userRequest){
+        return super.loadUser(userRequest);
+
+    }
 }
+

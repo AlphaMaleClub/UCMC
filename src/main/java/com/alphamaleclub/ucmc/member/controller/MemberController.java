@@ -1,0 +1,50 @@
+package com.alphamaleclub.ucmc.member.controller;
+
+import com.alphamaleclub.ucmc.member.services.MemberService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+
+@Slf4j
+@RestController
+@RequestMapping
+@RequiredArgsConstructor
+public class MemberController {
+
+    private final MemberService memberService;
+
+    @GetMapping("/oauth2/initiate")
+    public ResponseEntity<?> initHandler(@RequestParam("intent") String intent, @RequestParam("provider") String provider, HttpServletResponse response) throws IOException {
+
+        //리디렉션용 쿠키 생성
+        Cookie intentCookie = new Cookie("intent", intent);
+        Cookie providerCookie = new Cookie("provider", provider);
+
+        intentCookie.setPath("/");
+        intentCookie.setHttpOnly(true);
+        intentCookie.setMaxAge(180);
+
+        providerCookie.setPath("/");
+        providerCookie.setHttpOnly(true);
+        providerCookie.setMaxAge(180);
+
+        //response 에 쿠키 추가
+        response.addCookie(intentCookie);
+        response.addCookie(providerCookie);
+
+        //리디렉션
+        response.sendRedirect("/oauth2/authorize" + provider);
+
+        return ResponseEntity.ok("redirect ok");
+    }
+
+
+
+}

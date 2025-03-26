@@ -50,8 +50,6 @@ public class Member {
     @Column(nullable = false)
     private LocalDateTime lastLoginAt;
 
-    @Column(nullable = false)
-
 
     @Builder
     public Member(String accountId, String password, String email, String nickName, Role role, Status status, Provider provider, LocalDateTime createdAt) {
