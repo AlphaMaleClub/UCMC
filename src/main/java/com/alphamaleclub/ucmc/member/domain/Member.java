@@ -3,9 +3,9 @@ package com.alphamaleclub.ucmc.member.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.extern.slf4j.XSlf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Entity
@@ -49,6 +49,9 @@ public class Member {
 
     @Column(nullable = false)
     private LocalDateTime lastLoginAt;
+
+    @OneToMany(mappedBy = "member")
+    private List<RefreshToken> refreshTokens;
 
 
     @Builder

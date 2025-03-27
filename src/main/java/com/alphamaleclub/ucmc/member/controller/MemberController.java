@@ -40,7 +40,7 @@ public class MemberController {
         response.addCookie(providerCookie);
 
         //리디렉션
-        response.sendRedirect("/oauth2/authorize" + provider);
+        response.sendRedirect("/oauth2/authorization/" + provider);
 
         return ResponseEntity.ok("redirect ok");
     }

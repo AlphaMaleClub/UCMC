@@ -43,8 +43,6 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
         );
     }
 
-
-
     @Override
     public Member getMemberByAccountId(String accountId) {
 
@@ -60,21 +58,21 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
         return CustomUserDetails.memberToDetails(findMember);
     }
 
-
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-        OAuth2User oAuth2User = getOauth2User(userRequest);
-        Member findMember = getMemberByEmail(oAuth2User.getAttributes().get("email").toString());
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+        Member findMember = null;
 
+        try {
+            findMember = getMemberByEmail(oAuth2User.getAttributes().get("email").toString());
+        }catch (UserNotFoundException e){
+            log.info(e.getMessage());
+            return oAuth2User;
+        }
 
-
-        return super.loadUser(userRequest);
+        return CustomUserDetails.memberToDetails(findMember);
     }
 
-    public OAuth2User getOauth2User(OAuth2UserRequest userRequest){
-        return super.loadUser(userRequest);
-
-    }
 }
 

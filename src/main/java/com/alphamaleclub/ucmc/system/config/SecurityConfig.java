@@ -26,7 +26,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login(Customizer.withDefaults())
                 .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/login")
+                        auth -> auth.requestMatchers("/login","/oauth2/**")
                             .anonymous()
                         .requestMatchers(("/user/**"))
                             .hasAnyAuthority("USER")
