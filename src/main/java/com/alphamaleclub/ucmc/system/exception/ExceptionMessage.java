@@ -22,6 +22,12 @@ public class ExceptionMessage {
 
     }
 
+    public static class Auth{
+        public static final String OAUTH2_CANNOT_FOUND_ATTRIBUTES = "oauth2.0의 attributes 경로가 다릅니다.";
+        public static final String INVALID_OAUTH2_PROVIDER = "유효하지 않은 provider 입니다.";
+
+    }
+
     public static class Member{
 
         public static final String ACCOUNT_ID_IS_NOT_FOUND = "ID가 올바르지 않습니다.";

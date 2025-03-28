@@ -1,6 +1,7 @@
 package com.alphamaleclub.ucmc.member.dto;
 
 import com.alphamaleclub.ucmc.member.domain.Member;
+import com.alphamaleclub.ucmc.member.domain.Role;
 import com.alphamaleclub.ucmc.member.domain.Status;
 import jakarta.annotation.sql.DataSourceDefinition;
 import lombok.Builder;
@@ -80,7 +81,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     }
 
     @Builder
-    public CustomUserDetails(Long userId, String password, String nickname, boolean isLocked, boolean isAccountExpired, boolean isPasswordExpired, boolean isEnabled) {
+    public CustomUserDetails(Long userId, String password, String nickname, boolean isLocked, boolean isAccountExpired, boolean isPasswordExpired, boolean isEnabled, Role role) {
         this.userId = userId;
         this.password = password;
         this.nickname = nickname;
@@ -88,6 +89,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         this.isAccountExpired = isAccountExpired;
         this.isPasswordExpired = isPasswordExpired;
         this.isEnabled = isEnabled;
+        this.role = role.toString();
     }
 
     public static CustomUserDetails memberToDetails(Member member){
@@ -99,6 +101,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
                 .isAccountExpired(member.getStatus() == Status.expired)
                 .isPasswordExpired(member.getStatus() == Status.passwordExpired)
                 .isEnabled(member.getStatus() == Status.active)
+                .role(member.getRole())
                 .build();
     }
 

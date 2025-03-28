@@ -1,25 +1,28 @@
 package com.alphamaleclub.ucmc.member.services;
 
+import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Slf4j
-public class CustomOAuth2Handler implements AuthenticationSuccessHandler {
+@Component
+@RequiredArgsConstructor
+public class CustomOAuth2Handler extends SimpleUrlAuthenticationSuccessHandler {
 
     String intent = null;
     String provider = null;
-
+    String approach = null;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -28,34 +31,41 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler {
 
         Object principal = authentication.getPrincipal();
 
-        if(principal instanceof CustomUserDetails) {
-            if(intent.equals("login")) {
+
+        log.info("여기까지 성공 provider: {}", principal.toString());
+
+
+        if (principal instanceof CustomUserDetails) {
+            if (intent.equals("login")) {
                 log.info("Login successful");
-            }else if(intent.equals("signup")) {
+            } else if (intent.equals("signup")) {
                 log.error("already Signed in");
             }
-
-
-        }else if(principal instanceof OAuth2User) {
-            if(intent.equals("login")) {
+        } else if (principal instanceof CustomOAuth2User) {
+            if (intent.equals("login")) {
                 log.error("login Failure Banned or Member Not Found");
-            }else if(intent.equals("signup")) {
+            } else if (intent.equals("signup")) {
                 log.info("SignUp Logic Methode");
             }
         }
 
     }
 
+
     public void setCookieValue(HttpServletRequest request) {
+
         if(request.getCookies() != null){
             for(Cookie cookie: request.getCookies()){
                 if(cookie.getName().equals("intent")){
                     intent = cookie.getValue();
                 } else if(cookie.getName().equals("provider")){
                     provider = cookie.getValue();
+                } else if(cookie.getName().equals("approach")){
+                    approach = cookie.getValue();
                 }
             }
         }
+
     }
 
     public void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
