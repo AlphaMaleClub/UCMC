@@ -5,21 +5,18 @@ import com.alphamaleclub.ucmc.member.services.MemberServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomOAuth2Handler customOAuth2Handler;
-//    private final MemberServiceImpl memberServiceImpl;
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final MemberServiceImpl memberServiceImpl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,7 +31,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         // 로그인 성공시 처리 핸들러
                         .successHandler(customOAuth2Handler)
-//                        .userInfoEndpoint(userInfo -> userInfo.userService(memberServiceImpl))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(memberServiceImpl))
                 )
                 .authorizeHttpRequests(
                         auth -> auth.requestMatchers("/login","/oauth2/**")

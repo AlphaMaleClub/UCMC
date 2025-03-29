@@ -19,8 +19,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
+
 
 @Slf4j
 @Service
@@ -65,7 +65,6 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-
         Member findMember;
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String provider = extractProvider(userRequest);
@@ -79,7 +78,6 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
 
         //테스트로그
         //showMeTheAttributes(oAuth2User);
-
 
         log.info("Custom OAuth2User : {}", customOauth2User);
 
