@@ -43,7 +43,7 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     @Transactional(readOnly = true)
     public List<Comment> findCommentsByPostId(Long postId) {
-        List<Comment> byPostId = commentsRepository.findByPostIdAndParentIsNull(postId);
+        List<Comment> byPostId = commentsRepository.findByPostPostIdAndParentIsNull(postId);
         return byPostId;
     }
 

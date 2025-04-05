@@ -35,7 +35,6 @@ public class CustomOAuth2Handler extends SimpleUrlAuthenticationSuccessHandler {
                 .findFirst()
                 .orElseThrow(() -> new InvalidPrincipalTypeException(ExceptionMessage.Auth.INVALID_PRINCIPAL_TYPE + ": " + principal))
                 .handle(cookies, principal);
-
     }
 
     public void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {

@@ -76,8 +76,8 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
                 .orElseThrow(()-> new InvalidOAuth2ProviderException(ExceptionMessage.Auth.INVALID_OAUTH2_PROVIDER + ": " + provider))
                 .extract(oAuth2User, provider);
 
-        //테스트로그
-        //showMeTheAttributes(oAuth2User);
+//        테스트로그
+        showMeTheAttributes(oAuth2User);
 
         log.info("Custom OAuth2User : {}", customOauth2User);
 

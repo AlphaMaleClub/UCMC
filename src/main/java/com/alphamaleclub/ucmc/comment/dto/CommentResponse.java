@@ -18,7 +18,7 @@ public class CommentResponse {
     public CommentResponse(Comment comments) {
         this.id = comments.getId();
         this.content = comments.getContent();
-        this.author = comments.getMember().getNickName();
+        this.author = comments.getMember().getNickname();
         this.createTime = comments.getCreateAt();
         this.children = comments.getChildren().stream()
                 .map(CommentResponse::new)

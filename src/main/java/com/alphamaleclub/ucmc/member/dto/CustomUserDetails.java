@@ -3,7 +3,6 @@ package com.alphamaleclub.ucmc.member.dto;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.domain.Role;
 import com.alphamaleclub.ucmc.member.domain.Status;
-import jakarta.annotation.sql.DataSourceDefinition;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -96,7 +95,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return CustomUserDetails.builder()
                 .userId(member.getId())
                 .password(member.getPassword())
-                .nickname(member.getNickName())
+                .nickname(member.getNickname())
                 .isLocked(member.getStatus() == Status.locked)
                 .isAccountExpired(member.getStatus() == Status.expired)
                 .isPasswordExpired(member.getStatus() == Status.passwordExpired)

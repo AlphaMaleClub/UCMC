@@ -27,7 +27,7 @@ public class Member {
     private String email;
 
     @Column(nullable = false, unique = true, length = 20)
-    private String nickName;
+    private String nickname;
 
     //생성정보
     @Column(nullable = false)
@@ -53,12 +53,12 @@ public class Member {
 
 
     @Builder
-    public Member(String accountId, String password, String email, String nickName, Role role, Status status, Provider provider, LocalDateTime createdAt) {
+    public Member(String accountId, String password, String email, String nickname, Role role, Status status, Provider provider, LocalDateTime createdAt) {
 
         this.accountId = accountId;
         this.password = password;
         this.email = email;
-        this.nickName = nickName;
+        this.nickname = nickname;
         this.role = role;
         this.status = status;
         this.provider = provider;
