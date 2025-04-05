@@ -31,7 +31,7 @@ public class AuctionServiceImpl {
 
     private final S3StorageService s3StorageService;
 
-    private static final String BASE_URL = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
+    private static final String BASE_URL = "https://wafflebucket0413.s3.ap-northeast-2.amazonaws.com/";
 
     // 경매글 생성 시 dto에서 변환
     public Long createAuction(AuctionRequest dto, List<MultipartFile> imageFiles) throws IOException {
