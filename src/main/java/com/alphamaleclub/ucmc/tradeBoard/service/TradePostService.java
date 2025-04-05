@@ -23,4 +23,6 @@ public interface TradePostService {
     TradePostMessageResponse updateOnlyStatusTradePost(Long postId, Status status);
 
     TradePostMessageResponse updateOnlyUpdatedAt(Long postId);
+
+    TradePost getPostById(Long postId);
 }

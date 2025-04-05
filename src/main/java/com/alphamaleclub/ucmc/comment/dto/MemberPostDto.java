@@ -1,8 +1,10 @@
 package com.alphamaleclub.ucmc.comment.dto;
 
 
-import com.alphamaleclub.ucmc.comment.mock.Member;
-import com.alphamaleclub.ucmc.comment.mock.Post;
+
+
+import com.alphamaleclub.ucmc.member.domain.Member;
+import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,6 +12,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class MemberPostDto {
     private Member member;
-    private Post post;
+    private TradePost post;
 
 }
