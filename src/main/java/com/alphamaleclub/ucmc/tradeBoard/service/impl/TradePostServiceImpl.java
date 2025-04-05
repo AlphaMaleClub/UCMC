@@ -5,6 +5,7 @@ import com.alphamaleclub.ucmc.image.domain.PostType;
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.domain.MemberRepository;
+import com.alphamaleclub.ucmc.system.exception.tradeboard.PostNotFoundException;
 import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
@@ -323,6 +324,12 @@ public class TradePostServiceImpl implements TradePostService {
                 .build();
     }
 
+    @Override
+    public TradePost getPostById(Long postId) {
+        return tradePostRepository.findById(postId).orElseThrow(
+                () -> new PostNotFoundException("게시글을 찾을 수 없습니다")
+        );
+    }
 
 
 }
