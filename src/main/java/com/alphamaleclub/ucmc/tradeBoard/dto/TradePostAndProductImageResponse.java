@@ -1,8 +1,8 @@
 package com.alphamaleclub.ucmc.tradeBoard.dto;
 
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
+import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
 import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
-import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,4 +23,7 @@ public class TradePostAndProductImageResponse {
     LocalDateTime createdAt;
     String nickName;
     List<ProductImage> productImages;
+    DeliveryType deliveryType;
+    Long bumpedCount;
+
 }

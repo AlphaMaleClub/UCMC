@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class KanbanBoardMessageResponse {
+public class TradePostMessageResponse {
 
     private String message;
     private boolean result;

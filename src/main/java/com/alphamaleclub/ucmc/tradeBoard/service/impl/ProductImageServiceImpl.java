@@ -5,6 +5,9 @@ import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.tradeBoard.repository.ProductImageRepository;
 import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,5 +47,14 @@ public class ProductImageServiceImpl implements ProductImageService {
     public void deleteProductImage(ProductImage productImage) {
         productImageRepository.delete(productImage);
     }
+
+    @Override
+    public Page<ProductImage> findAllProductImagesOnlyTradePost(Pageable pageable) {
+
+        Page<ProductImage> images = productImageRepository.findByPostType(PostType.TRADE, pageable);
+
+        return images;
+    }
+
 
 }

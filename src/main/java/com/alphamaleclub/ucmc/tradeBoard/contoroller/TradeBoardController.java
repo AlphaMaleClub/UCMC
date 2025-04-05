@@ -16,18 +16,29 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/Trade")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class TradeBoardController {
 
     private final TradePostServiceImpl tradePostService;
 
-    @PostMapping(value = "/createPost", consumes = "multipart/form-data")
-    public ResponseEntity<KanbanBoardMessageResponse> createTradePost(@RequestPart("data") CreateTradeBoardRequest request, @RequestParam("images") List<MultipartFile> images) throws IOException {
-
-        KanbanBoardMessageResponse result = tradePostService.createTradePost(request, images);
+    @PostMapping(path = "/createPost", consumes = "multipart/form-data")
+    public ResponseEntity<TradePostMessageResponse> createTradePost(@RequestPart("data") CreateTradeBoardRequest request, @RequestParam("images") List<MultipartFile> images) throws IOException {
+        log.info("슈발?{}", request);
+        log.info("images = {}", images);
+        TradePostMessageResponse result = tradePostService.createTradePost(request, images);
 
         return ResponseEntity.ok(result);
 
     }
+
+    @GetMapping("/readAllPost")
+    public ResponseEntity<GetAllTradePostAndImagesMessageResponse> readAllPost(@RequestParam  int page) {
+
+        GetAllTradePostAndImagesMessageResponse result = tradePostService.getAllTradePost(page);
+
+        return ResponseEntity.ok(result);
+    }
+
 
     @GetMapping("/readPost/{postId}")
     public ResponseEntity<TradePostAndProductImageResponse> readTradePost(@PathVariable Long postId) {
@@ -39,29 +50,37 @@ public class TradeBoardController {
 
 
     @PutMapping(value = "/updatePost", consumes = "multipart/form-data")
-    public ResponseEntity<KanbanBoardMessageResponse> updateTradePost(@RequestPart("data") UpdatePostRequest request, @RequestParam("images") List<MultipartFile> images) throws IOException {
+    public ResponseEntity<TradePostMessageResponse> updateTradePost(@RequestPart("data") UpdatePostRequest request, @RequestParam("images") List<MultipartFile> images) throws IOException {
 
-        KanbanBoardMessageResponse result = tradePostService.updateTradePost(request, images);
+        TradePostMessageResponse result = tradePostService.updateTradePost(request, images);
 
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping( "/deletePost")
-    public ResponseEntity<KanbanBoardMessageResponse> deleteTradePost(@RequestBody DeleteTradePostRequest request) {
+    @DeleteMapping( "/deletePost/{postId}")
+    public ResponseEntity<TradePostMessageResponse> deleteTradePost(@PathVariable Long postId) {
 
-        KanbanBoardMessageResponse result = tradePostService.deleteTradePost(request);
+        log.info("postId = {}", postId);
+        TradePostMessageResponse result = tradePostService.deleteTradePost(postId);
 
         return ResponseEntity.ok(result);
     }
 
     @PutMapping("/updatePostStatus/{postId}")
-    public ResponseEntity<KanbanBoardMessageResponse> updateOnlyStatusTradePost(@PathVariable Long postId,Status status) {
+    public ResponseEntity<TradePostMessageResponse> updateOnlyStatusTradePost(@PathVariable Long postId, Status status) {
 
-        KanbanBoardMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status);
+        TradePostMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status);
 
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping("/bumpPost/{postId}")
+    public ResponseEntity<TradePostMessageResponse> BumpPost(@PathVariable Long postId) {
+
+        TradePostMessageResponse result = tradePostService.updateOnlyUpdatedAt(postId);
+
+        return ResponseEntity.ok(result);
+    }
 
 
 

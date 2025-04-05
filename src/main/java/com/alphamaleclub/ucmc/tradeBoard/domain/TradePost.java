@@ -1,14 +1,11 @@
 package com.alphamaleclub.ucmc.tradeBoard.domain;
 
 
-import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -39,29 +36,48 @@ public class TradePost {
     @Column
     private LocalDateTime createdAt = LocalDateTime.now();
 
+
+    @Column
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="member_id", nullable = false)
     private Member member;
 
+    @Column
+    private DeliveryType deliveryType;
+
+    @Column
+    private Long bumpedCount = 0L;
+
 
     @Builder
     public TradePost (String title, Long price, String locate, String contents,
-                         Member member) {
+                         Member member,DeliveryType deliveryType) {
         this.title = title;
         this.price = price;
         this.locate = locate;
         this.contents = contents;
         this.member = member;
+        this.deliveryType = deliveryType;
+
     }
 
 
-    public void  updateTradePost (Status status,String title, Long price, String locate, String contents) {
+    public void  updateTradePost (Status status,String title, Long price, String locate,
+                                  String contents,DeliveryType deliveryType,  Long dumpedCount, LocalDateTime updatedAt) {
         this.status = status;
         this.title = title;
         this.price = price;
         this.locate = locate;
         this.contents = contents;
+        this.deliveryType = deliveryType;
+        this.bumpedCount = dumpedCount;
+        this.updatedAt = updatedAt;
     }
+
+
 
 
 

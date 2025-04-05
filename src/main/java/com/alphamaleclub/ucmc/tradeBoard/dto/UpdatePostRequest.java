@@ -2,11 +2,14 @@ package com.alphamaleclub.ucmc.tradeBoard.dto;
 
 
 import com.alphamaleclub.ucmc.image.domain.PostType;
+import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
 import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 
 @Data
@@ -28,4 +31,9 @@ public class UpdatePostRequest {
 
     String Locate;
 
+    DeliveryType deliveryType;
+
+    Long dumpedCount;
+
+    LocalDateTime updatedAt;
 }

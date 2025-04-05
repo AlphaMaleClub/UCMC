@@ -11,4 +11,5 @@ public interface TradePostRepository extends JpaRepository<TradePost, Long> {
     Optional<TradePost> findById(Long aLong);
 
 
+
 }
