@@ -32,15 +32,16 @@ public class ExceptionMessage {
     }
 
     public static class Auth{
-        public static final String OAUTH2_CANNOT_FOUND_ATTRIBUTES = "oauth2.0의 attributes 경로가 다릅니다.";
-        public static final String INVALID_OAUTH2_PROVIDER = "유효하지 않은 provider 입니다.";
+        public static final String OAUTH2_CANNOT_FOUND_ATTRIBUTES = "oauth2.0의 attributes 경로가 달라졌습니다. Provider의 Official Docs에 변경사항이 있는지 점검하십시오.";
+        public static final String INVALID_OAUTH2_PROVIDER = "유효하지 않은 Provider 입니다.";
         public static final String INVALID_PRINCIPAL_TYPE = "Principal 내부의 값이 유효하지 않은 타입입니다.";
+        public static final String INVALID_ACCESS_PATH_EXCEPTION = "허가되지 않은 접속 URL 입니다. 파라미터가 추가된 URL 을 통해 접속되어야 합니다.";
     }
 
     public static class Member{
         public static final String ACCOUNT_ID_IS_NOT_FOUND = "ID가 올바르지 않습니다.";
-        public static final String KEY_NUMBER_IS_NOT_FOUND = "Key 값이 올바르지 않습니다.";
-        public static final String EMAIL_IS_NOT_FOUND = "해당 Email을 가진 유저가 없습니다.";
+        public static final String KEY_NUMBER_IS_NOT_FOUND = "Key값이 올바르지 않습니다.";
+        public static final String EMAIL_IS_NOT_FOUND = "해당 Email을 소유한 등록된 유저가 없습니다.";
     }
 
 

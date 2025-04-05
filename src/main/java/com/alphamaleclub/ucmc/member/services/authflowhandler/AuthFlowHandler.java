@@ -1,5 +1,7 @@
 package com.alphamaleclub.ucmc.member.services.authflowhandler;
 
+import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
+import com.alphamaleclub.ucmc.system.exception.auth.InvalidAccessPathException;
 import jakarta.servlet.http.Cookie;
 
 public abstract class AuthFlowHandler {
@@ -16,7 +18,7 @@ public abstract class AuthFlowHandler {
 
     protected abstract void doHandle(Object principal);
 
-    public void setCookieValue(Cookie[] cookies) {
+    public void setCookieValue(Cookie[] cookies) throws InvalidAccessPathException {
 
         if(cookies != null){
             for(Cookie cookie: cookies){
@@ -27,6 +29,11 @@ public abstract class AuthFlowHandler {
                 }
             }
         }
+
+        if( intent == null || provider == null ){
+            throw new InvalidAccessPathException(ExceptionMessage.Auth.INVALID_ACCESS_PATH_EXCEPTION);
+        }
+
 
     }
 

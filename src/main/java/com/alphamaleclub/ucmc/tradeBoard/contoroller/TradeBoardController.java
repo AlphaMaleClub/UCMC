@@ -23,7 +23,6 @@ public class TradeBoardController {
 
     @PostMapping(path = "/createPost", consumes = "multipart/form-data")
     public ResponseEntity<TradePostMessageResponse> createTradePost(@RequestPart("data") CreateTradeBoardRequest request, @RequestParam("images") List<MultipartFile> images) throws IOException {
-        log.info("슈발?{}", request);
         log.info("images = {}", images);
         TradePostMessageResponse result = tradePostService.createTradePost(request, images);
 
