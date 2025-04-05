@@ -1,9 +1,7 @@
 package com.alphamaleclub.ucmc.member.domain;
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -82,5 +80,4 @@ public class Member {
     private void onPostPersist(){
         log.info("{} 회원가입 완료", this.getAccountId()); //추후 이메일로 가입환영 메일 발송.
     }
-
 }
