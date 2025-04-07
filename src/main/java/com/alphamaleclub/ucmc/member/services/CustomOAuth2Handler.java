@@ -38,7 +38,7 @@ public class CustomOAuth2Handler extends SimpleUrlAuthenticationSuccessHandler {
     }
 
     public void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-
+        
     }
 
 

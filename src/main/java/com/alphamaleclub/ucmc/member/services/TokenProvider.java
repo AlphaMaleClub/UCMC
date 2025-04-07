@@ -1,10 +1,108 @@
 package com.alphamaleclub.ucmc.member.services;
 
-import org.springframework.stereotype.Component;
+import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
+import com.alphamaleclub.ucmc.member.dto.TokenPair;
+import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
+import com.alphamaleclub.ucmc.system.exception.auth.KeyLoadFailedException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-@Component
+
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Date;
+
+@Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
 public class TokenProvider {
 
+    @Value("${jwt.token.expiration-time.access}")
+    private int ACCESS_TOKEN_VALIDITY_TIME;
 
+    @Value("${jwt.token.expiration-time.refresh}" )
+    private int REFRESH_TOKEN_VALIDITY_TIME;
+
+    private Long ACCESS_TOKEN_VALIDITY_IN_MS;
+    private Long REFRESH_TOKEN_VALIDITY_IN_MS;
+
+    private final KeyManager keyManager;
+
+    @PostConstruct
+    public void init(){
+
+        ACCESS_TOKEN_VALIDITY_IN_MS = ACCESS_TOKEN_VALIDITY_TIME * 1000L * 60L;
+        REFRESH_TOKEN_VALIDITY_IN_MS = REFRESH_TOKEN_VALIDITY_TIME * 1000L * 60L;
+
+    }
+
+    public String generateAccessToken(CustomUserDetails user) {
+        return Jwts.builder()
+                .subject(user.getUserId().toString()) //제목처럼 쓰임
+                .claim("role", user.getAuthorities()) //
+                .claim("name", user.getNickname())
+                .issuedAt(new Date())
+                .expiration(new Date(new Date().getTime() + ACCESS_TOKEN_VALIDITY_IN_MS))
+                .signWith(keyManager.getPrivateKey(), Jwts.SIG.RS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(CustomUserDetails user) {
+        return Jwts.builder()
+                .subject(user.getUserId().toString()) //제목처럼 쓰임
+                .claim("name", user.getNickname())
+                .issuedAt(new Date())
+                .expiration(new Date(new Date().getTime() + REFRESH_TOKEN_VALIDITY_IN_MS))
+                .signWith(keyManager.getPrivateKey(), Jwts.SIG.RS256)
+                .compact();
+    }
+
+    public TokenPair generateTokenPair(CustomUserDetails user) {
+        return TokenPair.builder()
+                .accessToken(generateAccessToken(user))
+                .refreshToken(generateRefreshToken(user))
+                .build();
+    }
+
+    public Boolean validateWithKey(String token){
+        if(validateToken(token,keyManager.getPublicKey())){
+            return true;
+        }else if(validateToken(token, keyManager.getPublicKey("previous"))) {
+            return true;
+        }
+        log.info("해당 토큰이 문제를 일으켰습니다. = {}", token);
+        return false;
+
+    }
+
+
+    public Boolean validateToken(String token, PublicKey publicKey) {
+
+        try {
+            Jwts.parser()
+                    .verifyWith(publicKey)
+                    .build()
+                    .parseSignedClaims(token); // 본문 반환함.
+            return true;
+        }catch (JwtException e) {
+            log.warn("파싱에 실패했습니다. 토큰이 만료됐거나 키 오류입니다. = {}", e.getMessage());
+        }catch (IllegalArgumentException e) {
+            log.warn("JWT 본문 스트링이 비어있습니다. = {}", e.getMessage());
+        }catch (Exception e){
+            log.warn("알 수 없는 토큰에러입니다. = {}", e.getMessage());
+        }
+        return false;
+    }
+
+//    public String issue (CustomUserDetails user) {
+//
+//    }
 
 }
