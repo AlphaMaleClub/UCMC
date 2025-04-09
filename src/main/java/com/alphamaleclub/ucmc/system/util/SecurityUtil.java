@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityUtil {
 
-    public static Long getCurrentMemberId() {
+    public static Long getCurrentMemberId() throws NullPointerException {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() == "anonymousUser") {
             return null;

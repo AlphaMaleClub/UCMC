@@ -1,9 +1,12 @@
 package com.alphamaleclub.ucmc.member.services;
 
+import com.alphamaleclub.ucmc.member.Repositorty.RefreshTokenRepository;
+import com.alphamaleclub.ucmc.member.domain.RefreshToken;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.TokenPair;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
-import com.alphamaleclub.ucmc.system.exception.auth.KeyLoadFailedException;
+import com.alphamaleclub.ucmc.system.exception.member.UserNotFoundException;
+import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -14,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Date;
 
@@ -22,7 +24,7 @@ import java.util.Date;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class TokenProvider {
+public class TokenManager {
 
     @Value("${jwt.token.expiration-time.access}")
     private int ACCESS_TOKEN_VALIDITY_TIME;
@@ -34,6 +36,8 @@ public class TokenProvider {
     private Long REFRESH_TOKEN_VALIDITY_IN_MS;
 
     private final KeyManager keyManager;
+    private final MemberService memberService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @PostConstruct
     public void init(){
@@ -72,16 +76,16 @@ public class TokenProvider {
     }
 
     public Boolean validateWithKey(String token){
+
         if(validateToken(token,keyManager.getPublicKey())){
             return true;
         }else if(validateToken(token, keyManager.getPublicKey("previous"))) {
             return true;
         }
-        log.info("해당 토큰이 문제를 일으켰습니다. = {}", token);
+        log.warn("해당 토큰이 문제를 일으켰습니다. = {}", token);
         return false;
 
     }
-
 
     public Boolean validateToken(String token, PublicKey publicKey) {
 
@@ -99,10 +103,25 @@ public class TokenProvider {
             log.warn("알 수 없는 토큰에러입니다. = {}", e.getMessage());
         }
         return false;
+
+}
+
+    public void saveRefreshToken(String refreshTokenString){
+
+        try {
+            refreshTokenRepository.save(
+                    RefreshToken.builder()
+                            .token(refreshTokenString)
+                            .member(memberService.getMemberById(SecurityUtil.getCurrentMemberId()))
+                            .build()
+            );
+        }catch (NullPointerException e){
+            log.warn("로그인되지 않은 사용자가 RefreshToken 을 발급을 시도했습니다.");
+            throw new UserNotFoundException(ExceptionMessage.MemberAuth.MEMBER_NOT_FOUND);
+        }
+
     }
 
-//    public String issue (CustomUserDetails user) {
-//
-//    }
+
 
 }

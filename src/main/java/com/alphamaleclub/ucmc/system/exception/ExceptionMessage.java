@@ -38,6 +38,7 @@ public class ExceptionMessage {
         public static final String INVALID_ACCESS_PATH_EXCEPTION = "허가되지 않은 접속 URL 입니다. 파라미터가 추가된 URL 을 통해 접속되어야 합니다.";
         public static final String KEY_LOAD_FAILED_EXCEPTION = "키 파일을 로드하는데 실패했습니다";
         public static final String PRIVATE_KEY_MUST_NOT_BE_NULL = "키셋이 비어있습니다. 관리자에게 문의해주세요.";
+        public static final String ILLEGAL_COOKIE_NAME = "Access, Refresh 이외의 커스텀 쿠키를 만드려면 시간을 같이 써주세요. CookieName: " ;
     }
 
     public static class Member{

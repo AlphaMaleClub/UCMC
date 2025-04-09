@@ -37,10 +37,10 @@ public class KeyManager {
     private KeySet generateKeySet() {
 
         try {
+
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(2048);
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
             String kid = UUID.randomUUID().toString();
             LocalDateTime now = LocalDateTime.now();
 
@@ -49,8 +49,11 @@ public class KeyManager {
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
                     .build();
+
         } catch (NoSuchAlgorithmException e) {
+
             log.error("키 생성 알고리즘이 올바르지 않습니다.");
+
         }
 
         return null;
