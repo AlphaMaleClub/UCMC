@@ -3,6 +3,7 @@ package com.alphamaleclub.ucmc.auction.service;
 import com.alphamaleclub.ucmc.auction.domain.Auction;
 import com.alphamaleclub.ucmc.auction.domain.AuctionImage;
 import com.alphamaleclub.ucmc.auction.domain.AuctionStatus;
+import com.alphamaleclub.ucmc.auction.dto.AuctionImageResponse;
 import com.alphamaleclub.ucmc.auction.dto.AuctionRequest;
 import com.alphamaleclub.ucmc.auction.dto.AuctionResponse;
 import com.alphamaleclub.ucmc.auction.repository.AuctionRepository;
@@ -187,6 +188,17 @@ public class AuctionServiceImpl {
                 keysToDelete.forEach(s3StorageService::delete);
             }
         });
+    }
+
+    @Transactional
+    public List<AuctionImageResponse> getAuctionImages(Long auctionId) {
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new AuctionNotExistException(AUCTION_NOT_EXIST_EXCEPTION));
+
+        // 엔티티 → DTO 변환
+        return auction.getModifiableImages().stream()
+                .map(img -> new AuctionImageResponse(img.getId(), img.getImageUrl()))
+                .toList();
     }
 
     // 경매글 조회 시 dto로 반환
