@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.UUID;
 
 @Slf4j
@@ -27,6 +29,8 @@ public class KeyManager {
     public void init(){
 
         currentKeySet = generateKeySet();
+
+        log.info("currentKeySet.toString() = {}", currentKeySet);
 
         if(currentKeySet == null){throw new CriticalKeyGenerateException(ExceptionMessage.Auth.PRIVATE_KEY_MUST_NOT_BE_NULL);}
 
@@ -62,11 +66,16 @@ public class KeyManager {
 
     }
 
+//    @Scheduled(fixedRate = 10 * 1000) // 테스트용 : 10초마다 실행
     @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000) // 7일마다 실행
     public void updateKeySet() {
 
         previousKeySet = (currentKeySet != null) ? currentKeySet : null;
         currentKeySet = generateKeySet();
+
+        log.info("currentKeySet.toString() = {}", currentKeySet.toString());
+        log.info("previousKeySet.toString() = {}", previousKeySet.toString());
+
 
     }
 
@@ -95,6 +104,15 @@ public class KeyManager {
         private PublicKey publicKey;
         private LocalDateTime createdAt ;
 
+        @Override
+        public String toString() {
+            return "\n" +"KeySet{" + "\n" +
+                    "kid='" + kid + '\'' + "\n" +
+                    "privateKey=" + Base64.getEncoder().encodeToString(privateKey.getEncoded()) + "\n" +
+                    "publicKey=" + Base64.getEncoder().encodeToString(publicKey.getEncoded()) + "\n" +
+                    "createdAt=" + createdAt.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")) + "\n" +
+                    '}';
+        }
     }
 
 }
