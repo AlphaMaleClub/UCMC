@@ -1,7 +1,5 @@
 package com.alphamaleclub.ucmc.member.services;
 
-import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
-import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.services.authflowhandler.AuthFlowHandler;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
 import com.alphamaleclub.ucmc.system.exception.auth.InvalidPrincipalTypeException;
@@ -21,11 +19,11 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomOAuth2Handler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final List<AuthFlowHandler> authFlowHandlers;
 
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 
         Object principal = authentication.getPrincipal();
         Cookie[] cookies = request.getCookies();
@@ -39,6 +37,5 @@ public class CustomOAuth2Handler extends SimpleUrlAuthenticationSuccessHandler {
         getRedirectStrategy().sendRedirect(request, response, redirectPath);
 
     }
-
 
 }

@@ -39,12 +39,14 @@ public class ExceptionMessage {
         public static final String KEY_LOAD_FAILED_EXCEPTION = "키 파일을 로드하는데 실패했습니다";
         public static final String PRIVATE_KEY_MUST_NOT_BE_NULL = "키셋이 비어있습니다. 관리자에게 문의해주세요.";
         public static final String ILLEGAL_COOKIE_NAME = "Access, Refresh 이외의 커스텀 쿠키를 만드려면 시간을 같이 써주세요. CookieName: " ;
+        public static final String PROVIDER_IS_NOT_FOUND = "유지하는 Provider 목록에서는 해당 항목이 없습니다. Provider: ";
     }
 
     public static class Member{
         public static final String ACCOUNT_ID_IS_NOT_FOUND = "ID가 올바르지 않습니다.";
         public static final String KEY_NUMBER_IS_NOT_FOUND = "Key값이 올바르지 않습니다.";
         public static final String EMAIL_IS_NOT_FOUND = "해당 Email을 소유한 등록된 유저가 없습니다.";
+        public static final String USER_ALREADY_EXIST = "이미 등록된 유저가 있습니다. Input: ";
     }
 
 

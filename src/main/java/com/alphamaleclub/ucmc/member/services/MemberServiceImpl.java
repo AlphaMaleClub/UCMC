@@ -4,11 +4,13 @@ import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
+import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.oauth2extractor.Oauth2UserInfoExtractor;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
 import com.alphamaleclub.ucmc.system.exception.auth.InvalidOAuth2ProviderException;
+import com.alphamaleclub.ucmc.system.exception.member.UserAlreadyExistsException;
 import com.alphamaleclub.ucmc.system.exception.member.UserNotFoundException;
-import com.alphamaleclub.ucmc.system.util.SecurityUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,11 +27,12 @@ import java.util.*;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class MemberServiceImpl extends DefaultOAuth2UserService implements MemberService, UserDetailsService {
 
-    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MemberRepository memberRepository;
     private final List<Oauth2UserInfoExtractor> oauth2UserInfoExtractors;
 
     @Override
@@ -59,10 +62,23 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     }
 
     @Override
+    public void signUp(SignUpRequest signUpRequest) {
+
+        checkSignUpIntegrity(signUpRequest);
+
+        signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+
+        memberRepository.save(Member.signUpRequestToMember(signUpRequest));
+
+    }
+
+
+
+    @Override
     public UserDetails loadUserByUsername(String accountId) throws UsernameNotFoundException {
 
         Member findMember = this.getMemberByAccountId(accountId);
-        return CustomUserDetails.memberToDetails(findMember);
+        return CustomUserDetails.memberToDetails(findMember, "formLogin");
 
     }
 
@@ -82,8 +98,7 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
 
 //        테스트로그
 //        showMeTheAttributes(oAuth2User);
-
-        log.info("Custom OAuth2User : {}", customOauth2User);
+//        log.info("Custom OAuth2User : {}", customOauth2User);
 
         try {
             findMember = getMemberByEmail(customOauth2User.getEmail());
@@ -91,7 +106,7 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
             return customOauth2User;
         }
 
-        return CustomUserDetails.memberToDetails(findMember);
+        return CustomUserDetails.memberToDetails(findMember, "oauth2");
     }
 
     private String extractProvider(OAuth2UserRequest userRequest) {
@@ -105,10 +120,27 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
         });
     }
 
-    private void saveRefreshToken(String token) {
+    private void checkSignUpIntegrity(SignUpRequest signUpRequest) {
+
+        String accountId = signUpRequest.getAccountId();
+        String email = signUpRequest.getEmail();
+        String mobile = signUpRequest.getMobile();
+
+        boolean accountsExists = memberRepository.findByAccountId(accountId).isPresent();
+        boolean emailExists = memberRepository.findByEmail(email).isPresent();
+        boolean mobileExists = memberRepository.findByMobile(mobile).isPresent();
+
+        if(accountsExists){
+            throw new UserAlreadyExistsException(ExceptionMessage.Member.USER_ALREADY_EXIST + accountId);
+        }
+        if(emailExists){
+            throw new UserAlreadyExistsException(ExceptionMessage.Member.USER_ALREADY_EXIST + email);
+        }
+        if(mobile != null && mobileExists){
+            throw new UserAlreadyExistsException(ExceptionMessage.Member.USER_ALREADY_EXIST + mobile);
+        }
 
     }
-
 
 }
 

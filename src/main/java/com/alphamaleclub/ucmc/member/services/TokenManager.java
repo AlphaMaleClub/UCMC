@@ -103,7 +103,6 @@ public class TokenManager {
             log.warn("알 수 없는 토큰에러입니다. = {}", e.getMessage());
         }
         return false;
-
 }
 
     public void saveRefreshToken(String refreshTokenString){
@@ -121,7 +120,5 @@ public class TokenManager {
         }
 
     }
-
-
 
 }

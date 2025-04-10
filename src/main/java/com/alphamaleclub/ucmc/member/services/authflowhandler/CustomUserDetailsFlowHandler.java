@@ -4,10 +4,10 @@ import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.TokenPair;
 import com.alphamaleclub.ucmc.member.services.CookiesManager;
 import com.alphamaleclub.ucmc.member.services.TokenManager;
-import com.alphamaleclub.ucmc.system.exception.auth.IllegalCookieNameException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
@@ -19,7 +19,9 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
     private final TokenManager tokenManager;
     private final CookiesManager cookiesManager;
 
-    private final String LOGIN_SUCCESS_URL = "https://localhost:3000";
+    @Value("${success-handler.redirect-url.login-success}")
+    private String LOGIN_SUCCESS_URL;
+
 
     @Override
     public boolean supports(Object principal) {

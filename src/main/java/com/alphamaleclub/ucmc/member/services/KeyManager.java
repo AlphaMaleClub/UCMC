@@ -6,6 +6,7 @@ import com.alphamaleclub.ucmc.system.exception.auth.CriticalKeyGenerateException
 import jakarta.annotation.PostConstruct;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -48,11 +49,12 @@ public class KeyManager {
                     .kid(kid)
                     .privateKey(keyPair.getPrivate())
                     .publicKey(keyPair.getPublic())
+                    .createdAt(now)
                     .build();
 
         } catch (NoSuchAlgorithmException e) {
 
-            log.error("키 생성 알고리즘이 올바르지 않습니다.");
+            log.error("키 생성 알고리즘이 올바르지 않습니다. 코드변경이 필요합니다.");
 
         }
 
@@ -91,6 +93,7 @@ public class KeyManager {
         private String kid;
         private PrivateKey privateKey;
         private PublicKey publicKey;
+        private LocalDateTime createdAt ;
 
     }
 

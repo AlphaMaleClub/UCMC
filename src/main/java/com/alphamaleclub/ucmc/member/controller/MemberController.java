@@ -1,13 +1,12 @@
 package com.alphamaleclub.ucmc.member.controller;
 
+import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.MemberService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -43,6 +42,14 @@ public class MemberController {
         response.sendRedirect("/oauth2/authorization/" + provider);
 
         return ResponseEntity.ok("redirect ok");
+    }
+
+    @PostMapping("/api/signup")
+    public ResponseEntity<?> signUp (@RequestBody SignUpRequest signUpRequest){
+
+        memberService.signUp(signUpRequest);
+
+        return ResponseEntity.ok("Signup ok");
     }
 
 

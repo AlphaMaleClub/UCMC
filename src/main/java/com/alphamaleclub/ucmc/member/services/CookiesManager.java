@@ -15,7 +15,7 @@ public class CookiesManager {
     final int ACCESS_TOKEN_COOKIE_LIVE_TIME = 60 * 60; //1시간
     final int REFRESH_TOKEN_COOKIE_LIVE_TIME = 60 * 60 * 24 * 7; //7일
 
-    public Cookie makeCookie(String cookieName,String tokenValue) {
+    public Cookie makeCookie(String tokenValue, String cookieName) {
         return switch (cookieName) {
             case "accessToken" -> makeCookieLogic(cookieName, tokenValue, ACCESS_TOKEN_COOKIE_LIVE_TIME);
             case "refreshToken" -> makeCookieLogic(cookieName, tokenValue, REFRESH_TOKEN_COOKIE_LIVE_TIME);
@@ -35,8 +35,5 @@ public class CookiesManager {
         cookie.setSecure(false);
         return cookie;
     }
-
-
-
 
 }
