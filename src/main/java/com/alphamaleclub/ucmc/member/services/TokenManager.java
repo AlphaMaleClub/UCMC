@@ -50,6 +50,9 @@ public class TokenManager {
     public String generateAccessToken(CustomUserDetails user) {
         return Jwts.builder()
                 .subject(user.getUserId().toString()) //제목처럼 쓰임
+                .header()
+                    .add("kid",keyManager.getKid())
+                    .and()
                 .claim("role", user.getAuthorities()) //
                 .claim("name", user.getNickname())
                 .issuedAt(new Date())
@@ -61,6 +64,9 @@ public class TokenManager {
     public String generateRefreshToken(CustomUserDetails user) {
         return Jwts.builder()
                 .subject(user.getUserId().toString()) //제목처럼 쓰임
+                .header()
+                    .add("kid",keyManager.getKid())
+                    .and()
                 .claim("name", user.getNickname())
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + REFRESH_TOKEN_VALIDITY_IN_MS))

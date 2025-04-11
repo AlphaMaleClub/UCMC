@@ -95,6 +95,10 @@ public class KeyManager {
         return (intent.equals("previous")) ? currentKeySet.getPublicKey() : null;
     }
 
+    public String getKid(){
+        return currentKeySet.getKid();
+    }
+
     @Getter
     @Builder
     private static class KeySet {
