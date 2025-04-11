@@ -1,6 +1,7 @@
 package com.alphamaleclub.ucmc.member.services;
 
 import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
+import com.alphamaleclub.ucmc.member.Repositorty.RefreshTokenRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
@@ -8,11 +9,17 @@ import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.oauth2extractor.Oauth2UserInfoExtractor;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
 import com.alphamaleclub.ucmc.system.exception.auth.InvalidOAuth2ProviderException;
+import com.alphamaleclub.ucmc.system.exception.auth.MissingTokenException;
 import com.alphamaleclub.ucmc.system.exception.member.UserAlreadyExistsException;
 import com.alphamaleclub.ucmc.system.exception.member.UserNotFoundException;
+import com.alphamaleclub.ucmc.system.util.SecurityUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.token.TokenService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,6 +41,10 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final List<Oauth2UserInfoExtractor> oauth2UserInfoExtractors;
+
+    public Member getLoginedMember() {
+        return getMemberById(SecurityUtil.getCurrentMemberId());
+    }
 
     @Override
     public Member getMemberById(Long id) {
@@ -113,7 +124,7 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
         return userRequest.getClientRegistration().getRegistrationId();
     }
 
-    //각 provider 의 발급한 정보를 꺼내서 로그로 보여주는 메서드(거의 테스트용임)
+    //각 provider 의 발급한 정보를 꺼내서 로그로 보여주는 메서드(테스트용임)
     private static void showMeTheAttributes(OAuth2User oAuth2User) {
         oAuth2User.getAttributes().keySet().forEach(key -> {
             log.info("keyName = {} , Value = {}",key, Objects.requireNonNull(oAuth2User.getAttribute(key)));

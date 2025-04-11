@@ -1,10 +1,7 @@
 package com.alphamaleclub.ucmc.member.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
@@ -23,7 +20,8 @@ public class RefreshToken {
 
     private LocalDateTime createdAt;
 
-    private Boolean isExpired;
+    @Setter
+    private boolean isExpired;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -32,7 +30,7 @@ public class RefreshToken {
     @PrePersist
     private void onCreate(){
         if(this.createdAt == null) this.createdAt = LocalDateTime.now();
-        if(this.isExpired == null) this.isExpired = false;
+        isExpired = false;
     }
 
     @Builder

@@ -1,15 +1,20 @@
 package com.alphamaleclub.ucmc.member.services;
 
 import com.alphamaleclub.ucmc.member.Repositorty.RefreshTokenRepository;
+import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.domain.RefreshToken;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.TokenPair;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
+import com.alphamaleclub.ucmc.system.exception.auth.InvalidReIssueRequestException;
+import com.alphamaleclub.ucmc.system.exception.auth.MissingTokenException;
 import com.alphamaleclub.ucmc.system.exception.member.UserNotFoundException;
 import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +23,11 @@ import org.springframework.stereotype.Service;
 
 
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -38,6 +47,7 @@ public class TokenManager {
     private final KeyManager keyManager;
     private final MemberService memberService;
     private final RefreshTokenRepository refreshTokenRepository;
+
 
     @PostConstruct
     public void init(){
@@ -63,7 +73,7 @@ public class TokenManager {
 
     public String generateRefreshToken(CustomUserDetails user) {
         return Jwts.builder()
-                .subject(user.getUserId().toString()) //제목처럼 쓰임
+                .subject(user.getUserId().toString()) //유저번호가 JWT 헤더에 있음.
                 .header()
                     .add("kid",keyManager.getKid())
                     .and()
@@ -81,7 +91,7 @@ public class TokenManager {
                 .build();
     }
 
-    public Boolean validateWithKey(String token){
+    public boolean validateWithKey(String token){
 
         if(validateToken(token,keyManager.getPublicKey())){
             return true;
@@ -93,7 +103,19 @@ public class TokenManager {
 
     }
 
-    public Boolean validateToken(String token, PublicKey publicKey) {
+    private String extractRefreshToken(HttpServletRequest request) {
+
+        Cookie[] cookies = request.getCookies();
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals("refreshToken"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_NOT_FOUND));
+
+    }
+
+    private boolean validateToken(String token, PublicKey publicKey) {
 
         try {
             Jwts.parser()
@@ -109,7 +131,8 @@ public class TokenManager {
             log.warn("알 수 없는 토큰에러입니다. = {}", e.getMessage());
         }
         return false;
-}
+
+    }
 
     public void saveRefreshToken(String refreshTokenString){
 
@@ -123,6 +146,41 @@ public class TokenManager {
         }catch (NullPointerException e){
             log.warn("로그인되지 않은 사용자가 RefreshToken 을 발급을 시도했습니다.");
             throw new UserNotFoundException(ExceptionMessage.MemberAuth.MEMBER_NOT_FOUND);
+        }
+
+    }
+
+    public void expireRefreshToken() {
+
+        Member member = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
+
+        member.getRefreshTokens().stream()
+                .filter(refToken -> (!refToken.isExpired()))
+                .map(refToken -> {
+                        refToken.setExpired(true);
+                        return refreshTokenRepository.save(refToken);
+                })
+                .forEach(refToken ->{
+                    log.info("해당 RefreshToken 이 Expired 처리 되었습니다. \n Value = {}", refToken.getToken());
+                });
+
+    }
+
+    public void refreshTokenReIssue(HttpServletRequest request) {
+
+        String token = extractRefreshToken(request);
+
+        Member targetMember = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
+
+        targetMember.getRefreshTokens().stream()
+                .filter(refToken -> (!refToken.isExpired()))
+                .findFirst();
+
+
+
+
+        if(!validateWithKey(token) || ){
+            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST)
         }
 
     }

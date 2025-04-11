@@ -2,7 +2,9 @@ package com.alphamaleclub.ucmc.member.controller;
 
 import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.MemberService;
+import com.alphamaleclub.ucmc.member.services.TokenManager;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,7 @@ import java.io.IOException;
 public class MemberController {
 
     private final MemberService memberService;
+    private final TokenManager tokenManager;
 
     @GetMapping("/oauth2/initiate")
     public ResponseEntity<?> initHandler(@RequestParam("intent") String intent, @RequestParam("provider") String provider, HttpServletResponse response) throws IOException {
@@ -52,6 +55,20 @@ public class MemberController {
         return ResponseEntity.ok("Signup ok");
     }
 
+    @PostMapping
+    public ResponseEntity<?> logOut (){
+
+        tokenManager.expireRefreshToken();
+
+        return ResponseEntity.ok("LogOut ok");
+    }
+
+    @PostMapping
+    public ResponseEntity<?> accessTokenReIssue (HttpServletRequest request){
+
+        memberService.
+
+    }
 
 
 }
