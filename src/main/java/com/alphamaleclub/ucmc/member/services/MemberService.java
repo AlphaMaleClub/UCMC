@@ -8,6 +8,8 @@ public interface MemberService {
 
     Member getMemberByEmail(String email);
 
+    Member getMemberByNickname(String nickname);
+
     Member getMemberByAccountId(String accountId);
 
 }
