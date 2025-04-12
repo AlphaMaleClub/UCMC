@@ -35,6 +35,7 @@ public class SecurityConfig {
                             .hasAnyAuthority("USER")
                         .requestMatchers("/admin/**")
                             .hasAnyAuthority("ADMIN")
+                        .requestMatchers("/api/auctions/**").permitAll()
                         .anyRequest()
                             .authenticated()
                 )

@@ -48,11 +48,25 @@ public class ExceptionMessage {
     }
 
     public static class Member{
+      
         public static final String ACCOUNT_ID_IS_NOT_FOUND = "ID가 올바르지 않습니다.";
         public static final String KEY_NUMBER_IS_NOT_FOUND = "Key값이 올바르지 않습니다.";
         public static final String EMAIL_IS_NOT_FOUND = "해당 Email을 소유한 등록된 유저가 없습니다.";
         public static final String USER_ALREADY_EXIST = "이미 등록된 유저가 있습니다. Input: ";
+        public static final String USER_NOT_FOUND_EXCEPTION = "회원이 존재하지 않습니다.";
+        public static final String LOGIN_REQUIRED_EXCEPTION = "로그인 후 이용 가능합니다.";
+
     }
 
+    public static class Auction {
+        public static final String INVALID_START_PRICE_EXCEPTION = "경매 시작 가격을 확인해주세요.";
+        public static final String AUCTION_NOT_EDITABLE_EXCEPTION = "이미 입찰자가 있으므로 수정/삭제가 불가능합니다.";
+        public static final String BIDDING_TOO_LOW_EXCEPTION = "입찰 금액이 현재 가격보다 낮습니다.";
+        public static final String AUCTION_ALREADY_FINISHED_EXCEPTION = "이미 경매가 종료되었습니다.";
+        public static final String INVALID_IMAGE_COUNT_EXCEPTION = "첨부 이미지 수는 최소 1개, 최대 5개여야 합니다.";
+        public static final String IMAGE_NOT_FOUND_EXCEPTION = "해당 이미지가 존재하지 않습니다.";
+        public static final String AUCTION_NOT_EXIST_EXCEPTION = "경매글이 존재하지 않습니다.";
+
+    }
 
 }
