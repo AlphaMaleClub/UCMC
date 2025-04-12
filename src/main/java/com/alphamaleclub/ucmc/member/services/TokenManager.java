@@ -166,23 +166,23 @@ public class TokenManager {
 
     }
 
-    public void refreshTokenReIssue(HttpServletRequest request) {
-
-        String token = extractRefreshToken(request);
-
-        Member targetMember = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
-
-        targetMember.getRefreshTokens().stream()
-                .filter(refToken -> (!refToken.isExpired()))
-                .findFirst();
-
-
-
-
-        if(!validateWithKey(token) || ){
-            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST)
-        }
-
-    }
+//    public void refreshTokenReIssue(HttpServletRequest request) {
+//
+//        String token = extractRefreshToken(request);
+//
+//        Member targetMember = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
+//
+//        targetMember.getRefreshTokens().stream()
+//                .filter(refToken -> (!refToken.isExpired()))
+//                .findFirst();
+//
+//
+//
+//
+//        if(!validateWithKey(token) || ){
+//            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST)
+//        }
+//
+//    }
 
 }
