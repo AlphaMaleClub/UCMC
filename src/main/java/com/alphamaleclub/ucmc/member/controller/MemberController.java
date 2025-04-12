@@ -63,12 +63,12 @@ public class MemberController {
         return ResponseEntity.ok("LogOut ok");
     }
 
-//    @PostMapping
-//    public ResponseEntity<?> accessTokenReIssue (HttpServletRequest request){
-//
-//        memberService.
-//
-//    }
+    @PostMapping
+    public ResponseEntity<?> accessTokenReIssue (HttpServletRequest request){
+
+        memberService.
+
+    }
 
 
 }
