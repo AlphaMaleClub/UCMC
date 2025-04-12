@@ -1,12 +1,27 @@
 package com.alphamaleclub.ucmc.member.services.authflowhandler;
 
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
+import com.alphamaleclub.ucmc.member.dto.TokenPair;
+import com.alphamaleclub.ucmc.member.services.CookiesManager;
+import com.alphamaleclub.ucmc.member.services.TokenManager;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
+
+    private final TokenManager tokenManager;
+    private final CookiesManager cookiesManager;
+
+    @Value("${success-handler.redirect-url.login-success}")
+    private String LOGIN_SUCCESS_URL;
+
 
     @Override
     public boolean supports(Object principal) {
@@ -14,7 +29,7 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
     }
 
     @Override
-    protected void doHandle(Object principal) {
+    protected String doHandle(HttpServletResponse response, Object principal) {
 
         /*
             CustomUserDetails 가 반환된다면 loadUser 에서 조회 성공했다는 뜻.
@@ -23,10 +38,35 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
             signup 으로 들어온 요청은 이미 기존 회원이므로 login 으로 유도할지에 대해
             프론트에서 처리할 것.
          */
-        switch (super.intent){
-            case "login" -> log.info("Login successful");
-            case "signup" -> log.error("already Signed in");
+
+        switch (super.intent) {
+            case "login" -> {
+                return loginSuccess(response, principal);
+            }
+            case "signup" -> {
+                log.error("already Signed in");
+            }
         }
+        return null;
+    }
+
+
+    private String loginSuccess(HttpServletResponse response,Object principal) {
+
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
+
+        TokenPair tokenPair = tokenManager.generateTokenPair(userDetails);
+
+        tokenManager.saveRefreshToken(tokenPair.getAccessToken());
+
+        String accessToken = tokenPair.getAccessToken();
+        String refreshToken = tokenPair.getRefreshToken();
+
+        response.addCookie(cookiesManager.makeCookie(accessToken,"accessToken"));
+        response.addCookie(cookiesManager.makeCookie(refreshToken,"refreshToken"));
+
+        return LOGIN_SUCCESS_URL;
 
     }
+
 }

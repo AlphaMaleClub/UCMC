@@ -32,18 +32,30 @@ public class ExceptionMessage {
     }
 
     public static class Auth{
+
+        @Deprecated
+        public static final String KEY_LOAD_FAILED_EXCEPTION = "키 파일을 로드하는데 실패했습니다";
+
         public static final String OAUTH2_CANNOT_FOUND_ATTRIBUTES = "oauth2.0의 attributes 경로가 달라졌습니다. Provider의 Official Docs에 변경사항이 있는지 점검하십시오.";
         public static final String INVALID_OAUTH2_PROVIDER = "유효하지 않은 Provider 입니다.";
         public static final String INVALID_PRINCIPAL_TYPE = "Principal 내부의 값이 유효하지 않은 타입입니다.";
         public static final String INVALID_ACCESS_PATH_EXCEPTION = "허가되지 않은 접속 URL 입니다. 파라미터가 추가된 URL 을 통해 접속되어야 합니다.";
+        public static final String PRIVATE_KEY_MUST_NOT_BE_NULL = "키셋이 비어있습니다. 관리자에게 문의해주세요.";
+        public static final String ILLEGAL_COOKIE_NAME = "Access, Refresh 이외의 커스텀 쿠키를 만드려면 시간을 같이 써주세요. CookieName: " ;
+        public static final String PROVIDER_IS_NOT_FOUND = "유지하는 Provider 목록에서는 해당 항목이 없습니다. Provider: ";
+        public static final String TOKEN_NOT_FOUND = "쿠키 파싱 중 refresh 토큰을 찾지 못했습니다.";
+        public static final String INVALID_REISSUE_REQUEST = "이미 로그아웃처리 되었습니다."
     }
 
     public static class Member{
+      
         public static final String ACCOUNT_ID_IS_NOT_FOUND = "ID가 올바르지 않습니다.";
         public static final String KEY_NUMBER_IS_NOT_FOUND = "Key값이 올바르지 않습니다.";
         public static final String EMAIL_IS_NOT_FOUND = "해당 Email을 소유한 등록된 유저가 없습니다.";
+        public static final String USER_ALREADY_EXIST = "이미 등록된 유저가 있습니다. Input: ";
         public static final String USER_NOT_FOUND_EXCEPTION = "회원이 존재하지 않습니다.";
         public static final String LOGIN_REQUIRED_EXCEPTION = "로그인 후 이용 가능합니다.";
+
     }
 
     public static class Auction {
