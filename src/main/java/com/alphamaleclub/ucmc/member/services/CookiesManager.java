@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CookiesManager {
 
-
-
     final int ACCESS_TOKEN_COOKIE_LIVE_TIME = 60 * 60; //1시간
     final int REFRESH_TOKEN_COOKIE_LIVE_TIME = 60 * 60 * 24 * 7; //7일
 

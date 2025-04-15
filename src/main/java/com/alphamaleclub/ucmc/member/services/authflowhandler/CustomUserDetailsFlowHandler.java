@@ -4,6 +4,8 @@ import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.TokenPair;
 import com.alphamaleclub.ucmc.member.services.CookiesManager;
 import com.alphamaleclub.ucmc.member.services.TokenManager;
+import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
+import com.alphamaleclub.ucmc.system.exception.auth.AccountAlreadyExistsException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,9 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
 
     @Value("${success-handler.redirect-url.login-success}")
     private String LOGIN_SUCCESS_URL;
+
+    @Value(("${success-handler.redirect-url.signup-failed}"))
+    private String SIGNUP_FAILED_URL;
 
 
     @Override
@@ -44,7 +49,7 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
                 return loginSuccess(response, principal);
             }
             case "signup" -> {
-                log.error("already Signed in");
+                return SIGNUP_FAILED_URL;
             }
         }
         return null;

@@ -63,12 +63,14 @@ public class MemberController {
         return ResponseEntity.ok("LogOut ok");
     }
 
-    @PostMapping
-    public ResponseEntity<?> accessTokenReIssue (HttpServletRequest request){
+    @PostMapping("/api/access-token")
+    public ResponseEntity<?> accessTokenReIssue (HttpServletRequest request, HttpServletResponse response) {
 
-        memberService.
+        tokenManager.refreshTokenReIssue(request, response);
 
+        return ResponseEntity.ok("Access Token ok");
     }
+
 
 
 }

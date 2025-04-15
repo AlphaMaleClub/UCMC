@@ -15,13 +15,16 @@ import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 
+import java.net.CookieManager;
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Date;
@@ -46,6 +49,7 @@ public class TokenManager {
 
     private final KeyManager keyManager;
     private final MemberService memberService;
+    private final CookiesManager cookiesManager;
     private final RefreshTokenRepository refreshTokenRepository;
 
 
@@ -166,22 +170,32 @@ public class TokenManager {
 
     }
 
-    public void refreshTokenReIssue(HttpServletRequest request) {
+    public void refreshTokenReIssue(HttpServletRequest request, HttpServletResponse response) {
 
         String token = extractRefreshToken(request);
 
         Member targetMember = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
 
-        targetMember.getRefreshTokens().stream()
+        List<RefreshToken> refreshTokens = targetMember.getRefreshTokens().stream()
                 .filter(refToken -> (!refToken.isExpired()))
-                .findFirst();
+                .toList();
 
-
-
-
-        if(!validateWithKey(token) || ){
-            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST)
+        if(!validateWithKey(token)){ // 토큰이 Expired 됐거나 발급된 리프레시 토큰이 하나 복수개인 경우 이상감지
+            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST);
         }
+
+        if(refreshTokens.size() != 1){
+            refreshTokens.forEach(refToken -> {
+                log.info("TokenValue = {}", refToken.getToken());
+            });
+            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.MULTIPLE_ISSUED_REFRESH_TOKENS);
+        }
+
+        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String accessToken = generateAccessToken(user);
+
+        response.addCookie(cookiesManager.makeCookie(accessToken, "accessToken"));
 
     }
 
