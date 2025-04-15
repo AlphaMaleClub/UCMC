@@ -66,9 +66,11 @@ public class KeyManager {
 
     }
 
-//    @Scheduled(fixedRate = 10 * 1000) // 테스트용 : 10초마다 실행
-    @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000) // 7일마다 실행
+//    @Scheduled(fixedRate = 10L * 1000) // 테스트용 : 10초마다 실행
+    @Scheduled(fixedRate = 7L * 24 * 60 * 60 * 1000) // 7일마다 실행
     public void updateKeySet() {
+
+        log.info("KeySet Updating");
 
         previousKeySet = (currentKeySet != null) ? currentKeySet : null;
         currentKeySet = generateKeySet();

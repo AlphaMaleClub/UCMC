@@ -2,7 +2,6 @@ package com.alphamaleclub.ucmc.member.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
@@ -34,8 +33,7 @@ public class RefreshToken {
     }
 
     @Builder
-    public RefreshToken(Long tokenId, String token, LocalDateTime createdAt, Boolean isExpired, Member member) {
-        this.tokenId = tokenId;
+    public RefreshToken(String token, LocalDateTime createdAt, boolean isExpired, Member member) {
         this.token = token;
         this.createdAt = createdAt;
         this.isExpired = isExpired;

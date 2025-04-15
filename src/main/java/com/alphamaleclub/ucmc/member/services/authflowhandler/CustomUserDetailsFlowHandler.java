@@ -24,7 +24,7 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
     @Value("${success-handler.redirect-url.login-success}")
     private String LOGIN_SUCCESS_URL;
 
-    @Value(("${success-handler.redirect-url.signup-failed}"))
+    @Value("${success-handler.redirect-url.signup-failed}")
     private String SIGNUP_FAILED_URL;
 
 

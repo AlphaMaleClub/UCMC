@@ -55,7 +55,7 @@ public class MemberController {
         return ResponseEntity.ok("Signup ok");
     }
 
-    @PostMapping
+    @PostMapping("/logout")
     public ResponseEntity<?> logOut (){
 
         tokenManager.expireRefreshToken();

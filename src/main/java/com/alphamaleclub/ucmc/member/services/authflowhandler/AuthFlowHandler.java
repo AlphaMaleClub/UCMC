@@ -1,5 +1,6 @@
 package com.alphamaleclub.ucmc.member.services.authflowhandler;
 
+import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
 import com.alphamaleclub.ucmc.system.exception.auth.InvalidAccessPathException;
@@ -53,8 +54,10 @@ public abstract class AuthFlowHandler {
     }
 
     private boolean checkLoginMethodIsOAuth(Object principal) {
-        CustomUserDetails user = (CustomUserDetails) principal;
-        return user.getLoginMethod().equals("oauth2");
+
+        if(principal instanceof CustomUserDetails user ) {
+            return user.getLoginMethod().equals("oauth2");
+        } else return principal instanceof CustomOAuth2User;
     }
 
 }

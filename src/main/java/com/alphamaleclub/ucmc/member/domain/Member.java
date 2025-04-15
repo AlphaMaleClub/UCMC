@@ -30,6 +30,9 @@ public class Member {
     @Column(nullable = false, unique = true, length = 20)
     private String nickname;
 
+    @Column(length = 20)
+    private String realName;
+
     @Column(unique = true, length = 20)
     private String mobile;
 
@@ -57,11 +60,12 @@ public class Member {
 
 
     @Builder
-    public Member(String accountId, String password, String email, String nickname, String mobile, Role role, Status status, Provider provider, LocalDateTime createdAt) {
+    public Member(String accountId, String password, String email, String nickname, String realName, String mobile, Role role, Status status, Provider provider, LocalDateTime createdAt) {
 
         this.accountId = accountId;
         this.password = password;
         this.nickname = nickname;
+        this.realName = realName;
         this.mobile = mobile;
         this.email = email;
         this.role = role;

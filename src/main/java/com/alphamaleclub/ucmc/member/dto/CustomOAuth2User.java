@@ -3,6 +3,7 @@ package com.alphamaleclub.ucmc.member.dto;
 import com.alphamaleclub.ucmc.member.domain.Role;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 
-@Data
+@Getter
+@Builder
 public class CustomOAuth2User implements OAuth2User {
 
     /*
@@ -30,20 +32,12 @@ public class CustomOAuth2User implements OAuth2User {
     private String mobile;
 
     @Setter
+    private String loginMethod;
+
+    @Setter
     private String role;
 
     private Map<String, Object> attributes;
-
-    @Builder
-    public CustomOAuth2User(String provider, String realName, String nickname, String email, String mobile,String role, Map<String, Object> attributes) {
-        this.provider = provider;
-        this.realName = realName;
-        this.nickname = nickname;
-        this.email = email;
-        this.mobile = mobile;
-        this.role = role;
-        this.attributes = attributes;
-    }
 
     @Override
     public Map<String, Object> getAttributes() {
