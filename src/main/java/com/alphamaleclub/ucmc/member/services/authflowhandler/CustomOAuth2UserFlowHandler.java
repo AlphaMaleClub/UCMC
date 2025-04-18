@@ -6,6 +6,7 @@ import com.alphamaleclub.ucmc.member.services.MemberService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,13 @@ import org.springframework.stereotype.Component;
 public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
 
     private final MemberService memberService;
+
+
+    @Value("${success-handler.redirect-url.login-failed}")
+    private String LOGIN_FAILED_URL;
+
+    @Value("${success-handler.redirect-url.signup-success}")
+    private String SIGNUP_SUCCESS_URL;
 
     @Override
     public boolean supports(Object principal) {
@@ -32,15 +40,16 @@ public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
         CustomOAuth2User user = (CustomOAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         switch (super.intent){
+
             case "login" -> {
                 log.info("login Failure Banned or Member Not Found");
+                return LOGIN_FAILED_URL;
             }
             case "signup" -> {
-
-                log.info("SignUp Logic Method");
                 memberService.signUp(SignUpRequest.fromCustomOAuth2UserTestOnly(user));
-
+                return SIGNUP_SUCCESS_URL;
             }
+
         }
         return null;
     }

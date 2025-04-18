@@ -45,12 +45,14 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
          */
 
         switch (super.intent) {
+
             case "login" -> {
                 return loginSuccess(response, principal);
             }
             case "signup" -> {
                 return SIGNUP_FAILED_URL;
             }
+
         }
         return null;
     }
