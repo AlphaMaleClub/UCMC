@@ -114,6 +114,7 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
         try {
             findMember = getMemberByEmail(customOauth2User.getEmail());
         }catch (UserNotFoundException e){
+            log.info(e.getMessage());
             return customOauth2User;
         }
 

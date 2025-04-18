@@ -3,6 +3,7 @@ package com.alphamaleclub.ucmc.member.services;
 import com.alphamaleclub.ucmc.member.Repositorty.RefreshTokenRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.domain.RefreshToken;
+import com.alphamaleclub.ucmc.member.domain.Role;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.TokenPair;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
@@ -10,13 +11,18 @@ import com.alphamaleclub.ucmc.system.exception.auth.InvalidReIssueRequestExcepti
 import com.alphamaleclub.ucmc.system.exception.auth.MissingTokenException;
 import com.alphamaleclub.ucmc.system.exception.member.UserNotFoundException;
 import com.alphamaleclub.ucmc.system.util.SecurityUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,13 +30,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 
-import java.net.CookieManager;
 import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -95,38 +96,41 @@ public class TokenManager {
                 .build();
     }
 
-    public boolean validateWithKey(String token){
+    public Jws<Claims> validateWithKey(String token){
+        return validateToken(token, keyManager.getPublicKey())
+                .or(() -> validateToken(token, keyManager.getPublicKey("previous")))
+                .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_IS_NOT_VALID));
+    }
 
-        if(validateToken(token,keyManager.getPublicKey())){
-            return true;
-        }else if(validateToken(token, keyManager.getPublicKey("previous"))) {
-            return true;
-        }
-        log.warn("해당 토큰이 문제를 일으켰습니다. = {}", token);
-        return false;
+    public String extractRefreshToken(HttpServletRequest request) {
+
+        return extractToken(request, "refreshToken");
 
     }
 
-    private String extractRefreshToken(HttpServletRequest request) {
+    public String extractAccessToken(HttpServletRequest request) {
+
+        return extractToken(request, "accessToken");
+
+    }
+
+    private String extractToken(HttpServletRequest request, String tokenKey) {
 
         Cookie[] cookies = request.getCookies();
 
         return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals("refreshToken"))
+                .filter(cookie -> cookie.getName().equals(tokenKey))
                 .findFirst()
                 .map(Cookie::getValue)
-                .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_NOT_FOUND));
-
+                .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_NOT_FOUND + "TokenKey: " + tokenKey));
     }
 
-    private boolean validateToken(String token, PublicKey publicKey) {
-
+    private Optional<Jws<Claims>> parsingToken(String token, PublicKey publicKey) {
         try {
-            Jwts.parser()
+            return Optional.of(Jwts.parser()
                     .verifyWith(publicKey)
                     .build()
-                    .parseSignedClaims(token); // 본문 반환함.
-            return true;
+                    .parseSignedClaims(token));// 본문 반환함.
         }catch (JwtException e) {
             log.warn("파싱에 실패했습니다. 토큰이 만료됐거나 키 오류입니다. = {}", e.getMessage());
         }catch (IllegalArgumentException e) {
@@ -134,8 +138,11 @@ public class TokenManager {
         }catch (Exception e){
             log.warn("알 수 없는 토큰에러입니다. = {}", e.getMessage());
         }
-        return false;
+        return Optional.empty();
+    }
 
+    private Optional<Jws<Claims>> validateToken(String token, PublicKey publicKey) {
+        return parsingToken(token, publicKey);
     }
 
     public void saveRefreshToken(String refreshTokenString){
@@ -149,7 +156,7 @@ public class TokenManager {
             );
         }catch (NullPointerException e){
             log.warn("로그인되지 않은 사용자가 RefreshToken 을 발급을 시도했습니다.");
-            throw new UserNotFoundException(ExceptionMessage.MemberAuth.MEMBER_NOT_FOUND);
+            throw new UserNotFoundException(ExceptionMessage.Member.MEMBER_NOT_FOUND);
         }
 
     }
@@ -180,7 +187,9 @@ public class TokenManager {
                 .filter(refToken -> (!refToken.isExpired()))
                 .toList();
 
-        if(!validateWithKey(token)){ // 토큰이 Expired 됐거나 발급된 리프레시 토큰이 하나 복수개인 경우 이상감지
+        try{
+            validateWithKey(token);
+        }catch (MissingTokenException e){ // 토큰이 Expired 됐거나 발급된 리프레시 토큰이 하나 복수개인 경우 이상감지
             throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST);
         }
 
@@ -199,4 +208,32 @@ public class TokenManager {
 
     }
 
+    public TokenValue extractAccessTokenValue(String token){
+
+        Jws<Claims> resultBody = validateWithKey(token);
+
+        Claims claims = resultBody.getPayload();
+
+        return TokenValue.builder()
+                .id(claims.getSubject())
+                .nickname(claims.get("nickname", String.class))
+                .role(claims.get("role", String.class))
+                .build();
+    }
+
+    public Member tokenFiltering()
+
+
+
+    @Data
+    @Slf4j
+    @Builder
+    public static class TokenValue {
+
+        private String id;
+        private String nickname;
+        private String role;
+        private boolean isRefreshToken;
+
+    }
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -18,6 +19,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf( csrf-> csrf.disable() )
                 .formLogin(formLogin ->formLogin
                         .loginProcessingUrl("/login")
@@ -35,7 +38,8 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID","accessToken","refreshToken")
                 )
                 .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/login","/oauth2/**","/api/signup")
+                        auth -> auth
+                        .requestMatchers("/login","/oauth2/initiate","/api/signup")
                             .anonymous()
                         .requestMatchers(("/logout"))
                             .hasAnyAuthority("MEMBER", "ADMIN")

@@ -43,13 +43,16 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
             signup 으로 들어온 요청은 이미 기존 회원이므로 login 으로 유도할지에 대해
             프론트에서 처리할 것.
          */
+        CustomUserDetails userDetails = (CustomUserDetails) principal;
+
 
         switch (super.intent) {
 
             case "login" -> {
-                return loginSuccess(response, principal);
+                return loginSuccess(response, userDetails);
             }
             case "signup" -> {
+                log.warn("Already Exist AccountId = {}",  userDetails.getUserId());
                 return SIGNUP_FAILED_URL;
             }
 
@@ -58,9 +61,7 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
     }
 
 
-    private String loginSuccess(HttpServletResponse response,Object principal) {
-
-        CustomUserDetails userDetails = (CustomUserDetails) principal;
+    private String loginSuccess(HttpServletResponse response,CustomUserDetails userDetails) {
 
         TokenPair tokenPair = tokenManager.generateTokenPair(userDetails);
 
@@ -71,6 +72,8 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
 
         response.addCookie(cookiesManager.makeCookie(accessToken,"accessToken"));
         response.addCookie(cookiesManager.makeCookie(refreshToken,"refreshToken"));
+
+        log.info("Login User : [UserId = {}] [UserNickName = {}]", userDetails.getUserId(),userDetails.getNickname());
 
         return LOGIN_SUCCESS_URL;
 

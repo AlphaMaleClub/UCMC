@@ -9,6 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -24,6 +27,16 @@ public class MemberController {
 
     @GetMapping("/oauth2/initiate")
     public ResponseEntity<?> initHandler(@RequestParam("intent") String intent, @RequestParam("provider") String provider, HttpServletResponse response) throws IOException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🔐 인증 객체: {}", auth);
+        log.info("🔐 isAuthenticated: {}", auth.isAuthenticated());
+        log.info("🔐 인증 클래스: {}", auth.getClass().getSimpleName());
+
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+            log.warn("❌ 이미 로그인된 사용자입니다. 접근 차단.");
+            return ResponseEntity.status(403).body("이미 로그인된 사용자는 접근할 수 없습니다.");
+        }
 
         //리디렉션용 쿠키 생성
         Cookie intentCookie = new Cookie("intent", intent);
