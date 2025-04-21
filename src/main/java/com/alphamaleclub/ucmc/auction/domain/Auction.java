@@ -1,11 +1,11 @@
 package com.alphamaleclub.ucmc.auction.domain;
 
+import com.alphamaleclub.ucmc.auction.dto.AuctionRequest;
 import com.alphamaleclub.ucmc.auction.dto.AuctionResponse;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionAlreadyFinishedException;
 import com.alphamaleclub.ucmc.system.exception.auction.AuctionNotEditableException;
-import com.alphamaleclub.ucmc.system.exception.auction.BiddingTooLowException;
-import com.alphamaleclub.ucmc.system.exception.auction.InvalidStartPriceException;
+import com.alphamaleclub.ucmc.system.exception.auction.AuctionPriceTooLowException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.alphamaleclub.ucmc.system.exception.ExceptionMessage.Auction.*;
 
 @Entity
 @Table(name = "auction")
@@ -67,14 +65,7 @@ public class Auction {
                              String content,
                              LocalDateTime endTime,
                              int price,
-                             String description,
-                             Member member) {
-
-        // 경매 시작가격 검증
-        if (price <= 0) {
-            throw new InvalidStartPriceException(INVALID_START_PRICE_EXCEPTION);
-        }
-
+                             String description) {
         Auction auction = new Auction();
         auction.title = title;
         auction.content = content;
@@ -82,20 +73,19 @@ public class Auction {
         auction.price = price;
         auction.description = description;
         auction.createdAt = LocalDateTime.now();
-        auction.member = member;
         auction.refreshStatus();
         return auction;
     }
 
-//    public static Auction from(AuctionRequest dto) {
-//        return Auction.of(
-//                dto.getTitle(),
-//                dto.getContent(),
-//                dto.getEndTime(),
-//                dto.getPrice(),
-//                dto.getDescription()
-//        );
-//    }
+    public static Auction from(AuctionRequest dto) {
+        return Auction.of(
+                dto.getTitle(),
+                dto.getContent(),
+                dto.getEndTime(),
+                dto.getPrice(),
+                dto.getDescription()
+        );
+    }
 
     // 상태 갱신 메서드
     // 종료 시간 도래시 FINISHED, 아니라면 ONGOING
@@ -114,14 +104,14 @@ public class Auction {
         }
     }
 
-    // 입찰용 가격 변경 메서드
+    // 가격 변경 메서드
     public void placeBid(int bidPrice) {
         refreshStatus();
         if (this.status == AuctionStatus.FINISHED) {
-            throw new AuctionAlreadyFinishedException(AUCTION_ALREADY_FINISHED_EXCEPTION);
+            throw new AuctionAlreadyFinishedException("이미 경매가 종료되었습니다.");
         }
-        if (bidPrice <= this.price || bidPrice <= 0) {
-            throw new BiddingTooLowException(BIDDING_TOO_LOW_EXCEPTION);
+        if (bidPrice <= this.price) {
+            throw new AuctionPriceTooLowException("입찰 금액이 현재 가격보다 낮습니다.");
         }
 
         this.price = bidPrice;
@@ -131,7 +121,7 @@ public class Auction {
     // 경매글 수정 메서드
     public void updateAuction(String newTitle, String newContent, String newDescription) {
         if (this.hasBids) {
-            throw new AuctionNotEditableException(AUCTION_NOT_EDITABLE_EXCEPTION);
+            throw new AuctionNotEditableException("이미 입찰자가 있으므로 수정이 불가능합니다.");
         }
         this.title = newTitle;
         this.content = newContent;
@@ -139,9 +129,9 @@ public class Auction {
     }
 
     // 경매글 삭제 가능 여부 검증
-    public void validateEditableOrDeletable() {
+    public void validateDeletable() {
         if (this.hasBids) {
-            throw new AuctionNotEditableException(AUCTION_NOT_EDITABLE_EXCEPTION);
+            throw new AuctionNotEditableException("이미 입찰자가 있으므로 삭제가 불가능합니다.");
         }
     }
 
@@ -155,7 +145,6 @@ public class Auction {
                 .createdAt(this.createdAt)
                 .description(this.description)
                 .status(this.status)
-                .authorNickname(member.getNickname())
                 .build();
     }
 

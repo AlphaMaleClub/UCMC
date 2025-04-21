@@ -22,7 +22,6 @@ public class CustomOAuth2User implements OAuth2User {
         oAuth2User -> SignUpRequestDto 를 사전에 채워둔 상태로
         넘겨주기 위해서 만들었습니다.
      */
-
     private String provider;
     private String realName;
     private String nickname;

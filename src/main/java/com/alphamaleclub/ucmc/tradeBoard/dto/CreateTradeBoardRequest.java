@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateTradeBoardRequest {
 
+
     String title;
     String content;
     Long price;

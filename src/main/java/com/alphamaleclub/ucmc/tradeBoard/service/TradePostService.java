@@ -19,6 +19,8 @@ public interface TradePostService {
 
     TradePostMessageResponse deleteTradePost(Long postId);
 
+    Top10PostResponse findTop10();
+
     GetAllTradePostAndImagesMessageResponse getAllTradePost(int page, String srot);
 
     TradePostAndProductImageResponse getTradePost(Long postId);
