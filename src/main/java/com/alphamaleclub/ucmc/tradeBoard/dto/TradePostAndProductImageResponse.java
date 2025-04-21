@@ -16,7 +16,7 @@ import java.util.List;
 public class TradePostAndProductImageResponse {
 
     String title;
-    String contents;
+    String content;
     Long price;
     Status status;
     String locate;
@@ -25,5 +25,6 @@ public class TradePostAndProductImageResponse {
     List<ProductImage> productImages;
     DeliveryType deliveryType;
     Long bumpedCount;
+    Long memberId;
 
 }
