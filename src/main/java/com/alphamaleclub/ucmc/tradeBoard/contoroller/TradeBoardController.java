@@ -22,6 +22,15 @@ public class TradeBoardController {
     private final TradePostService tradePostService;
     private final ProductImageService productImageService;
 
+    @GetMapping(path = "/Top10Post")
+    public ResponseEntity<Top10PostResponse> getTop10Post() {
+
+        System.out.println("백엔드 도착");
+        Top10PostResponse result = tradePostService.findTop10();
+
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping(path = "/createPost", consumes = "multipart/form-data")
     public ResponseEntity<TradePostMessageResponse> createTradePost(@RequestPart("data") CreateTradeBoardRequest request, @RequestPart("images") List<MultipartFile> images) throws IOException {
 
@@ -101,5 +110,6 @@ public class TradeBoardController {
         tradePostService.createDummyPost();
 
     }
+
 
 }

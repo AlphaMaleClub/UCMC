@@ -48,8 +48,101 @@ public class TradePostServiceImpl implements TradePostService {
 
     private final MemberRepository memberRepository;
 
-    private final String BASE_URL = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
+    String baseUrl = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
 
+
+    @Override
+    public Top10PostResponse findTop10() {
+
+        List<TradePost> top10ByOrderByUpdatedAtDesc = tradePostRepository.findTop10ByOrderByUpdatedAtDesc();
+
+        List<ProductImageDto> images = new ArrayList<>();
+
+        for (TradePost postInfo : top10ByOrderByUpdatedAtDesc) {
+
+            try {
+                Long postId = postInfo.getPostId();
+                log.info("postId = {}", postId);
+
+                ProductImage firstProductImage = productImageService.getProductImageByPostNumber(postId);
+
+                if (firstProductImage == null) {
+                    images.add(null);
+                } else {
+                    images.add(new ProductImageDto(firstProductImage.getPostNumber(), firstProductImage.getImageUrl()));
+                }
+
+                log.info("firstProductImage = {}", firstProductImage);
+
+            } catch (Exception e) {
+                log.warn("이미지 조회 중 에러 발생 - postId: {}", postInfo.getPostId(), e);
+                images.add(null);
+            }
+
+        }
+
+        return Top10PostResponse.builder()
+                .message("Success GetAllTradePostAndImagesMessageResponse")
+                .result(true)
+                .tradePosts(top10ByOrderByUpdatedAtDesc)
+                .images(images)
+                .build();
+    }
+
+    @Override
+    public GetAllTradePostAndImagesMessageResponse getAllTradePost(int page, String sort) {
+
+        log.info("page = {}", page);
+        log.info("sort = {}", sort);
+
+        // sort 파라미터 파싱 (예: "price,asc")
+        String[] sortParams = sort.split(",");
+        String sortBy = sortParams[0];
+        Sort.Direction direction = Sort.Direction.fromString(sortParams[1]);
+
+        Pageable pageable = PageRequest.of(page, 20, Sort.by(direction, sortBy));
+
+        Page<TradePost> tradePosts = tradePostRepository.findAll(pageable);
+
+        List<TradePost> content = tradePosts.getContent();
+        log.info("content = {}", content);
+
+        List<ProductImageDto> images = new ArrayList<>();
+
+        for (TradePost postInfo : content) {
+            try {
+                Long postId = postInfo.getPostId();
+                log.info("postId = {}", postId);
+
+                ProductImage firstProductImage = productImageService.getProductImageByPostNumber(postId);
+
+                if (firstProductImage == null) {
+                    images.add(null);
+                } else {
+                    images.add(new ProductImageDto(firstProductImage.getPostNumber(), firstProductImage.getImageUrl()));
+                }
+
+                log.info("firstProductImage = {}", firstProductImage);
+
+            } catch (Exception e) {
+                log.warn("이미지 조회 중 에러 발생 - postId: {}", postInfo.getPostId(), e);
+                images.add(null);
+            }
+        }
+
+        if (!tradePosts.isEmpty()) {
+            log.info("tradePosts.get(0) = {}", tradePosts.getContent().get(0).getTitle());
+        } else {
+            log.info("tradePosts is empty");
+        }
+
+        return GetAllTradePostAndImagesMessageResponse.builder()
+                .message("Success GetAllTradePostAndImagesMessageResponse")
+                .result(true)
+                .tradePosts(tradePosts)
+                .images(images)
+                .build();
+    }
 
 
     @Override
@@ -142,6 +235,7 @@ public class TradePostServiceImpl implements TradePostService {
         List<ProductImage> beforeImage = productImageService.getTradeProductImagesByPostNumber(postNumber);
         ProductImage beforeImage1 = beforeImage.get(0);
 
+
         log.info("beforeImage1.getImageUrl() = {}", beforeImage1.getImageUrl());
 
 
@@ -194,7 +288,7 @@ public class TradePostServiceImpl implements TradePostService {
 
             String imageUrl = productImage.getImageUrl();
 
-            String key = imageUrl.replaceFirst(BASE_URL, "");
+            String key = imageUrl.replaceFirst(baseUrl, "");
 
             s3StorageService.delete(key);
 
@@ -212,60 +306,7 @@ public class TradePostServiceImpl implements TradePostService {
 
     }
 
-    @Override
-    public GetAllTradePostAndImagesMessageResponse getAllTradePost(int page, String sort) {
 
-        log.info("page = {}", page);
-        log.info("sort = {}", sort);
-
-        // sort 파라미터 파싱 (예: "price,asc")
-        String[] sortParams = sort.split(",");
-        String sortBy = sortParams[0];
-        Sort.Direction direction = Sort.Direction.fromString(sortParams[1]);
-
-        Pageable pageable = PageRequest.of(page, 20, Sort.by(direction, sortBy));
-
-        Page<TradePost> tradePosts = tradePostRepository.findAll(pageable);
-
-        List<TradePost> content = tradePosts.getContent();
-        log.info("content = {}", content);
-
-        List<ProductImageDto> images = new ArrayList<>();
-
-        for (TradePost postInfo : content) {
-            try {
-                Long postId = postInfo.getPostId();
-                log.info("postId = {}", postId);
-
-                ProductImage firstProductImage = productImageService.getProductImageByPostNumber(postId);
-
-                if (firstProductImage == null) {
-                    images.add(null);
-                } else {
-                    images.add(new ProductImageDto(firstProductImage.getPostNumber(), firstProductImage.getImageUrl()));
-                }
-
-                log.info("firstProductImage = {}", firstProductImage);
-
-            } catch (Exception e) {
-                log.warn("이미지 조회 중 에러 발생 - postId: {}", postInfo.getPostId(), e);
-                images.add(null);
-            }
-        }
-
-        if (!tradePosts.isEmpty()) {
-            log.info("tradePosts.get(0) = {}", tradePosts.getContent().get(0).getTitle());
-        } else {
-            log.info("tradePosts is empty");
-        }
-
-        return GetAllTradePostAndImagesMessageResponse.builder()
-                .message("Success GetAllTradePostAndImagesMessageResponse")
-                .result(true)
-                .tradePosts(tradePosts)
-                .images(images)
-                .build();
-    }
 
 
 
@@ -359,7 +400,7 @@ public class TradePostServiceImpl implements TradePostService {
     @Override
     public void createDummyPost() {
         for (int i = 1; i < 100; i++) {
-            Optional<Member> member = memberRepository.findById(5L);
+            Optional<Member> member = memberRepository.findById(1L);
             Member member1 = member.orElseThrow();
 
             TradePost tradePost = TradePost.builder()

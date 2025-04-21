@@ -1,5 +1,7 @@
 package com.alphamaleclub.ucmc.member.services;
 
+import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
+import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.services.authflowhandler.AuthFlowHandler;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
 import com.alphamaleclub.ucmc.system.exception.auth.InvalidPrincipalTypeException;
@@ -19,23 +21,26 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomOAuth2Handler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final List<AuthFlowHandler> authFlowHandlers;
 
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         Object principal = authentication.getPrincipal();
         Cookie[] cookies = request.getCookies();
 
-        String redirectPath = authFlowHandlers.stream()
+        authFlowHandlers.stream()
                 .filter(handler -> handler.supports(principal))
                 .findFirst()
                 .orElseThrow(() -> new InvalidPrincipalTypeException(ExceptionMessage.Auth.INVALID_PRINCIPAL_TYPE + ": " + principal))
-                .handle(cookies, principal, response);
+                .handle(cookies, principal);
+    }
 
-        getRedirectStrategy().sendRedirect(request, response, redirectPath);
+    public void loginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
     }
+
+
 
 }
