@@ -5,7 +5,10 @@ import com.alphamaleclub.ucmc.image.domain.PostType;
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
+import com.alphamaleclub.ucmc.member.domain.Provider;
+import com.alphamaleclub.ucmc.member.domain.Role;
 import com.alphamaleclub.ucmc.system.exception.tradeboard.PostNotFoundException;
+import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
 import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
@@ -19,11 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,6 +57,7 @@ public class TradePostServiceImpl implements TradePostService {
 
         // product image를 추가 하려면 먼저 tradePost를 선 생성 해야한다.
         // member 파라미터로 받아서 따로 추가해주는 작업 해야함, principle 사용
+
 
         TradePost tradePost = saveTradePost(request);
 
@@ -88,8 +94,16 @@ public class TradePostServiceImpl implements TradePostService {
     public TradePost saveTradePost(CreateTradeBoardRequest request) {
 
         // 현재는 더미 member
+
         Member member = Member.builder()
                 .nickname("시현")
+                .email("asdf@naver.com")
+                .password("1234")
+                .provider(Provider.google)
+                .role(Role.MEMBER)
+                .accountId("1")
+                .status(com.alphamaleclub.ucmc.member.domain.Status.active)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         memberRepository.save(member);
@@ -112,82 +126,53 @@ public class TradePostServiceImpl implements TradePostService {
 
     
     @Override
-    public TradePostMessageResponse updateTradePost(UpdatePostRequest request, List<MultipartFile> sourceImage) throws IOException {
+    public TradePostMessageResponse updateTradePost(Long postNumber,UpdatePostRequest request, List<MultipartFile> sourceImage) throws IOException {
 
-
-        Long postNumber = request.getPostNumber();
+        log.info("sourceImage = {}", sourceImage);
 
         // 기존 trade post를 가져온다.
         TradePost tradePost = tradePostRepository.findById(postNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다. ID: " + postNumber));
 
         // 기존 trade post 업데이트
-        tradePost.updateTradePost(request.getStatus(), request.getTitle(), request.getPrice(), request.getLocate(), request.getContent(),request.getDeliveryType(),request.getDumpedCount(),LocalDateTime.now());
+        tradePost.updateTradePost(request.getStatus(), request.getTitle(), request.getPrice(), request.getLocate(), request.getContent(),request.getDeliveryType(),request.getBumpedCount(),LocalDateTime.now());
         TradePost saved = tradePostRepository.save(tradePost);
 
-        // 새로운 이미지 변환
-        List<byte[]> newImage = productImageConvertService.convert(sourceImage);
-
         // 기존 이미지 가져오기
-        List<ProductImage> byPostTypeAndPostNumber = productImageService.getTradeProductImagesByPostTypeAndPostNumber(request.getPostType(),postNumber);
+        List<ProductImage> beforeImage = productImageService.getTradeProductImagesByPostNumber(postNumber);
+        ProductImage beforeImage1 = beforeImage.get(0);
 
-        int minSize = Math.min(newImage.size(), byPostTypeAndPostNumber.size());
 
-        //  새 이미지
-        if (newImage.size() < byPostTypeAndPostNumber.size()) {
-            log.info("새 < 기");
-            for (int i = 0; i < byPostTypeAndPostNumber.size(); i++) {
-                if (i < minSize) {
-                    byte[] fileData = newImage.get(i);
-                    ProductImage productImage = byPostTypeAndPostNumber.get(i);
-                    String beforeImageUrl = productImage.getImageUrl();
-                    s3StorageService.upload(fileData, beforeImageUrl);
-                    log.info("새 < 기 if 1 " + i);
-                }
+        log.info("beforeImage1.getImageUrl() = {}", beforeImage1.getImageUrl());
 
-                if (i >= newImage.size()) {
-                    log.info("기존 이미지 삭제 로직 = {}", i);
-                    ProductImage productImage = byPostTypeAndPostNumber.get(i);
-                    log.info(i +"회차 조회"+"productImage = {}", productImage);
-                    String imageUrl = productImage.getImageUrl();
 
-                    String key = imageUrl.replaceFirst(baseUrl, "");
-
-                    s3StorageService.delete(key);
-
-                    productImageService.deleteProductImage(productImage);
-
-                    log.info("새 < 기 if 2 " + i);
-                }
-            }
+        // 기존 이미지 삭제
+        for (ProductImage productImage : beforeImage) {
+            String imageUrl = productImage.getImageUrl();
+            String key = imageUrl.replaceFirst("https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/", "");
+            s3StorageService.delete(key);
+            productImageService.deleteProductImage(productImage);
         }
 
-        // 기존 이미지와 새로운 이미지 개수가 같으면 업데이트
-        if (newImage.size() == byPostTypeAndPostNumber.size()) {
+        // 새로운 이미지 컨버트
+        List<byte[]> files = productImageConvertService.convert(sourceImage);
 
-            for (int i = 0; i < minSize; i++) {
-                byte[] fileData = newImage.get(i);
-                ProductImage productImage = byPostTypeAndPostNumber.get(i);
-                s3StorageService.upload(fileData, productImage.getImageUrl());
-            }
+
+        for (byte[] fileData : files) {
+
+            //유니크 파일 경로 만들기
+            String fileName = UUID.randomUUID().toString();
+
+            //s3 업로드
+            String imageUrl = s3StorageService.upload(fileData,fileName);
+            System.out.println(imageUrl);
+
+            // product image 객체 생성
+            ProductImage productImage = productImageService.createTradeProductImage(tradePost.getPostId(), imageUrl);
+
         }
 
-        // 새로운 이미지가 기존 이미지보다 많을 경우 추가
-        if (newImage.size() > byPostTypeAndPostNumber.size()) {
-            log.info("기 < 새");
-            for (int i = 0; i < newImage.size(); i++) {
-                if (i < minSize) {
-                    byte[] fileData = newImage.get(i);
-                    ProductImage productImage = byPostTypeAndPostNumber.get(i);
-                    s3StorageService.upload(fileData, productImage.getImageUrl());
-                } else {
-                    byte[] fileData = newImage.get(i);
-                    String fileName = UUID.randomUUID().toString();
-                    String imageUrl = s3StorageService.upload(fileData, fileName);
-                    productImageService.createTradeProductImage(tradePost.getPostId(), imageUrl);
-                }
-            }
-        }
+
 
         return TradePostMessageResponse.builder()
                 .message("Success Updated Trade Post")
@@ -203,7 +188,7 @@ public class TradePostServiceImpl implements TradePostService {
         Long postNum = postId;
 
         // productImage type을 가져온다.
-        List<ProductImage> productImages = productImageService.getTradeProductImagesByPostTypeAndPostNumber(postType,postNum);
+        List<ProductImage> productImages = productImageService.getTradeProductImagesByPostNumber(postNum);
 
         // for eact 문을 돌려서 s3 버킷의 이미지 및 db의  productImage 를 지운다.
         for (ProductImage productImage : productImages) {
@@ -228,14 +213,52 @@ public class TradePostServiceImpl implements TradePostService {
 
     }
 
-    public GetAllTradePostAndImagesMessageResponse getAllTradePost(int page) {
+    @Override
+    public GetAllTradePostAndImagesMessageResponse getAllTradePost(int page, String sort) {
 
-        Pageable pageable = PageRequest.of(page, 20);
+        log.info("page = {}", page);
+        log.info("sort = {}", sort);
 
+        // sort 파라미터 파싱 (예: "price,asc")
+        String[] sortParams = sort.split(",");
+        String sortBy = sortParams[0];
+        Sort.Direction direction = Sort.Direction.fromString(sortParams[1]);
+
+        Pageable pageable = PageRequest.of(page, 20, Sort.by(direction, sortBy));
 
         Page<TradePost> tradePosts = tradePostRepository.findAll(pageable);
-        Page<ProductImage> images = productImageService.findAllProductImagesOnlyTradePost(pageable);
 
+        List<TradePost> content = tradePosts.getContent();
+        log.info("content = {}", content);
+
+        List<ProductImageDto> images = new ArrayList<>();
+
+        for (TradePost postInfo : content) {
+            try {
+                Long postId = postInfo.getPostId();
+                log.info("postId = {}", postId);
+
+                ProductImage firstProductImage = productImageService.getProductImageByPostNumber(postId);
+
+                if (firstProductImage == null) {
+                    images.add(null);
+                } else {
+                    images.add(new ProductImageDto(firstProductImage.getPostNumber(), firstProductImage.getImageUrl()));
+                }
+
+                log.info("firstProductImage = {}", firstProductImage);
+
+            } catch (Exception e) {
+                log.warn("이미지 조회 중 에러 발생 - postId: {}", postInfo.getPostId(), e);
+                images.add(null);
+            }
+        }
+
+        if (!tradePosts.isEmpty()) {
+            log.info("tradePosts.get(0) = {}", tradePosts.getContent().get(0).getTitle());
+        } else {
+            log.info("tradePosts is empty");
+        }
 
         return GetAllTradePostAndImagesMessageResponse.builder()
                 .message("Success GetAllTradePostAndImagesMessageResponse")
@@ -246,18 +269,20 @@ public class TradePostServiceImpl implements TradePostService {
     }
 
 
+
     @Override
     public TradePostAndProductImageResponse getTradePost(Long postId) {
         Long postNum = postId;
 
         Optional<TradePost> byId = tradePostRepository.findById(postNum);
         TradePost tradePost = byId.orElseThrow();
+        Long memberId = tradePost.getMember().getId();
 
-        List<ProductImage> productImages = productImageService.getTradeProductImagesByPostTypeAndPostNumber(PostType.TRADE,postNum);
+        List<ProductImage> productImages = productImageService.getTradeProductImagesByPostNumber(postNum);
 
         return TradePostAndProductImageResponse.builder()
                 .title(tradePost.getTitle())
-                .contents(tradePost.getContents())
+                .content(tradePost.getContents())
                 .price(tradePost.getPrice())
                 .status(tradePost.getStatus())
                 .locate(tradePost.getLocate())
@@ -266,6 +291,7 @@ public class TradePostServiceImpl implements TradePostService {
                 .bumpedCount(tradePost.getBumpedCount())
                 .nickName(tradePost.getMember().getNickname())
                 .productImages(productImages)
+                .memberId(memberId)
                 .build();
 
     }
@@ -329,6 +355,24 @@ public class TradePostServiceImpl implements TradePostService {
         return tradePostRepository.findById(postId).orElseThrow(
                 () -> new PostNotFoundException("게시글을 찾을 수 없습니다")
         );
+    }
+
+    @Override
+    public void createDummyPost() {
+        for (int i = 1; i < 100; i++) {
+            Optional<Member> member = memberRepository.findById(5L);
+            Member member1 = member.orElseThrow();
+
+            TradePost tradePost = TradePost.builder()
+                    .title("test" + i)
+                    .price((long) i)
+                    .locate("test" + i)
+                    .contents("test" + i)
+                    .deliveryType(DeliveryType.BOTH)
+                    .member(member1)
+                    .build();
+            tradePostRepository.save(tradePost);
+        }
     }
 
 

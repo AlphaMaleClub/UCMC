@@ -6,6 +6,8 @@ import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 
 @Getter
 @ToString
@@ -17,6 +19,5 @@ public class GetAllTradePostAndImagesMessageResponse {
     private String message;
     private boolean result;
     private Page<TradePost> tradePosts;
-    private Page<ProductImage> images;
-
+    private List<ProductImageDto> images;
 }

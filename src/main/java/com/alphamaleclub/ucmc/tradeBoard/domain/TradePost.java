@@ -2,6 +2,7 @@ package com.alphamaleclub.ucmc.tradeBoard.domain;
 
 
 import com.alphamaleclub.ucmc.member.domain.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,6 +44,7 @@ public class TradePost {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="member_id", nullable = false)
+    @JsonIgnore
     private Member member;
 
     @Column
