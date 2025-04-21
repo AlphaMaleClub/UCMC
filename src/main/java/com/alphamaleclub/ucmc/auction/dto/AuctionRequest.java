@@ -1,6 +1,7 @@
 package com.alphamaleclub.ucmc.auction.dto;
 
 import com.alphamaleclub.ucmc.auction.domain.Auction;
+import com.alphamaleclub.ucmc.member.domain.Member;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -14,13 +15,14 @@ public class AuctionRequest {
     private int price;
     private String description;
 
-    public Auction toEntity() {
+    public Auction toEntity(Member member) {
         return Auction.of(
                 this.title,
                 this.content,
                 this.endTime,
                 this.price,
-                this.description
+                this.description,
+                member
         );
     }
 

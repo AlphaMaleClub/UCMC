@@ -48,7 +48,7 @@ public class TradePostServiceImpl implements TradePostService {
 
     private final MemberRepository memberRepository;
 
-    String baseUrl = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
+    private final String BASE_URL = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
 
 
 
@@ -142,7 +142,6 @@ public class TradePostServiceImpl implements TradePostService {
         List<ProductImage> beforeImage = productImageService.getTradeProductImagesByPostNumber(postNumber);
         ProductImage beforeImage1 = beforeImage.get(0);
 
-
         log.info("beforeImage1.getImageUrl() = {}", beforeImage1.getImageUrl());
 
 
@@ -195,7 +194,7 @@ public class TradePostServiceImpl implements TradePostService {
 
             String imageUrl = productImage.getImageUrl();
 
-            String key = imageUrl.replaceFirst(baseUrl, "");
+            String key = imageUrl.replaceFirst(BASE_URL, "");
 
             s3StorageService.delete(key);
 

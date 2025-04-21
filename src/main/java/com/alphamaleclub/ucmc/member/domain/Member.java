@@ -1,4 +1,5 @@
 package com.alphamaleclub.ucmc.member.domain;
+import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,9 @@ public class Member {
     @Column(nullable = false, unique = true, length = 20)
     private String nickname;
 
+    @Column(unique = true, length = 20)
+    private String mobile;
+
     //생성정보
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -53,12 +57,13 @@ public class Member {
 
 
     @Builder
-    public Member(String accountId, String password, String email, String nickname, Role role, Status status, Provider provider, LocalDateTime createdAt) {
+    public Member(String accountId, String password, String email, String nickname, String mobile, Role role, Status status, Provider provider, LocalDateTime createdAt) {
 
         this.accountId = accountId;
         this.password = password;
-        this.email = email;
         this.nickname = nickname;
+        this.mobile = mobile;
+        this.email = email;
         this.role = role;
         this.status = status;
         this.provider = provider;
@@ -68,7 +73,13 @@ public class Member {
 
     @PrePersist
     private void onCreate(){
-        if(this.createdAt == null) this.createdAt = LocalDateTime.now();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if(this.createdAt == null) this.createdAt = now;
+        if(this.lastLoginAt == null) this.lastLoginAt = now;
+        if(this.role == null) this.role = Role.MEMBER;
+        if(this.status == null) this.status = Status.ACTIVE;
     }
 
     @PostLoad
@@ -80,4 +91,16 @@ public class Member {
     private void onPostPersist(){
         log.info("{} 회원가입 완료", this.getAccountId()); //추후 이메일로 가입환영 메일 발송.
     }
+
+    public static Member signUpRequestToMember(SignUpRequest signUpRequest) {
+        return Member.builder()
+                .accountId(signUpRequest.getAccountId())
+                .password(signUpRequest.getPassword())
+                .nickname(signUpRequest.getNickname())
+                .email(signUpRequest.getEmail())
+                .mobile(signUpRequest.getMobile())
+                .provider(Provider.fromString(signUpRequest.getProvider()))
+                .build();
+    }
+
 }
