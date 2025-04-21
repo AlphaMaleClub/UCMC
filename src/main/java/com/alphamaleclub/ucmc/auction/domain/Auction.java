@@ -146,6 +146,10 @@ public class Auction {
     }
 
     public AuctionResponse toDto() {
+
+        // 해당 경매에 등록된 이미지 중 첫번째 이미지를 썸네일로 가져감
+        String thumb = images.isEmpty() ? null : images.get(0).getImageUrl();
+
         return AuctionResponse.builder()
                 .id(this.id)
                 .title(this.title)
@@ -156,6 +160,7 @@ public class Auction {
                 .description(this.description)
                 .status(this.status)
                 .authorNickname(member.getNickname())
+                .thumbnailUrl(thumb)
                 .build();
     }
 

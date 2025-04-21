@@ -19,10 +19,11 @@ public class AuctionResponse {
     private final AuctionStatus status;
 
     private final String authorNickname;
+    private final String thumbnailUrl;
 
     @Builder
     public AuctionResponse(Long id, String title, String content, LocalDateTime endTime, int price,
-                              LocalDateTime createdAt, String description, AuctionStatus status, String authorNickname) {
+                              LocalDateTime createdAt, String description, AuctionStatus status, String authorNickname, String thumbnailUrl) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -32,6 +33,7 @@ public class AuctionResponse {
         this.description = description;
         this.status = status;
         this.authorNickname = authorNickname;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
 }
