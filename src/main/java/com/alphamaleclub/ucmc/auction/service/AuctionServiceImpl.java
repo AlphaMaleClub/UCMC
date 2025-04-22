@@ -53,7 +53,7 @@ public class AuctionServiceImpl {
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucketName;
 
-    /* key → URL 변환용 */
+    // key → URL 변환용
     private String getBaseUrl() {
         return "https://" + bucketName + ".s3." + region + ".amazonaws.com/";
     }
@@ -103,6 +103,33 @@ public class AuctionServiceImpl {
         return saved.toDto().getId();
     }
 
+    // 새 이미지 업로드
+    public void addAuctionImages(Long auctionId, List<MultipartFile> newFiles) throws IOException {
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new AuctionNotExistException(AUCTION_NOT_EXIST_EXCEPTION));
+        // 입찰 있으면 막기
+        auction.validateEditableOrDeletable();
+
+        int remain = 5 - auction.getModifiableImages().size();
+        if (newFiles == null || newFiles.isEmpty() || newFiles.size() > remain) {
+            throw new InvalidImageCountException(INVALID_IMAGE_COUNT_EXCEPTION);
+        }
+
+        List<byte[]> converted = imageConvertService.convert(newFiles);
+
+        for (byte[] bytes : converted) {
+            String key  = "auction/" + UUID.randomUUID() + ".jpg";
+            String url  = s3StorageService.upload(bytes, key);
+
+            auction.addImage(
+                    AuctionImage.builder()
+                            .imageUrl(url)
+                            .auction(auction)
+                            .build()
+            );
+        }
+    }
+
     // 경매글 첨부 사진 수정 (원하는 사진만 골라서 수정 가능하도록)
     public void updateAuctionImages(Long auctionId, Map<Long, MultipartFile> imagesToUpdate) throws IOException {
         Auction auction = auctionRepository.findById(auctionId)
@@ -128,7 +155,7 @@ public class AuctionServiceImpl {
             String newFileName = "auction/" + UUID.randomUUID() + ".jpg";
             String newImageUrl = s3StorageService.upload(bytes, newFileName);
 
-            /* 기존 이미지 key 저장 후 URL 교체 */
+            // 기존 이미지 key 저장 후 URL 교체
             oldKeysToDelete.add(auctionImage.getImageUrl().replace(getBaseUrl(), ""));
             auctionImage.updateImageUrl(newImageUrl);
         }

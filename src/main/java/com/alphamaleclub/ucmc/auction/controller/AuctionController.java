@@ -83,6 +83,14 @@ public class AuctionController {
         return ResponseEntity.ok(images);
     }
 
+    // 경매글 새 이미지 추가
+    @PostMapping(path = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> addImages(@PathVariable Long id,
+                                          @RequestParam("images") List<MultipartFile> images) throws IOException {
+        auctionService.addAuctionImages(id, images);
+        return ResponseEntity.ok().build();
+    }
+
     // 경매글 첨부 사진 수정: 수정할 이미지 ID와 새 파일을 매핑하여 받음
     @PatchMapping("/{id}/images")
     public ResponseEntity<Void> updateImages(@PathVariable Long id,
