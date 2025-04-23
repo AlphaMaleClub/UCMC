@@ -3,9 +3,9 @@ package com.alphamaleclub.ucmc.member.services;
 import com.alphamaleclub.ucmc.member.Repositorty.RefreshTokenRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.domain.RefreshToken;
-import com.alphamaleclub.ucmc.member.domain.Role;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.TokenPair;
+import com.alphamaleclub.ucmc.member.dto.TokenValueDto;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
 import com.alphamaleclub.ucmc.system.exception.auth.InvalidReIssueRequestException;
 import com.alphamaleclub.ucmc.system.exception.auth.MissingTokenException;
@@ -16,18 +16,16 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
-import lombok.Builder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
 
 import java.security.PublicKey;
@@ -68,7 +66,7 @@ public class TokenManager {
                 .header()
                     .add("kid",keyManager.getKid())
                     .and()
-                .claim("role", user.getAuthorities()) //
+                .claim("role", user.getRole()) //
                 .claim("name", user.getNickname())
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + ACCESS_TOKEN_VALIDITY_IN_MS))
@@ -96,25 +94,25 @@ public class TokenManager {
                 .build();
     }
 
-    public Jws<Claims> validateWithKey(String token){
+    public Jws<Claims> validateWithKey(String token) throws MissingTokenException {
         return validateToken(token, keyManager.getPublicKey())
                 .or(() -> validateToken(token, keyManager.getPublicKey("previous")))
                 .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_IS_NOT_VALID));
     }
 
-    public String extractRefreshToken(HttpServletRequest request) {
+    public String extractRefreshToken(HttpServletRequest request) throws MissingTokenException {
 
         return extractToken(request, "refreshToken");
 
     }
 
-    public String extractAccessToken(HttpServletRequest request) {
+    public String extractAccessToken(HttpServletRequest request) throws MissingTokenException {
 
         return extractToken(request, "accessToken");
 
     }
 
-    private String extractToken(HttpServletRequest request, String tokenKey) {
+    private String extractToken(HttpServletRequest request, String tokenKey) throws MissingTokenException, NullPointerException {
 
         Cookie[] cookies = request.getCookies();
 
@@ -179,7 +177,14 @@ public class TokenManager {
 
     public void refreshTokenReIssue(HttpServletRequest request, HttpServletResponse response) {
 
-        String token = extractRefreshToken(request);
+        String token;
+
+        try {
+            token = extractRefreshToken(request);
+        } catch (MissingTokenException e) {
+            log.warn(e.getMessage());
+            return;
+        }
 
         Member targetMember = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
 
@@ -208,32 +213,25 @@ public class TokenManager {
 
     }
 
-    public TokenValue extractAccessTokenValue(String token){
+    public TokenValueDto extractAccessTokenValue(String token) throws MissingTokenException{
 
-        Jws<Claims> resultBody = validateWithKey(token);
+        Jws<Claims> resultBody;
+
+        resultBody = validateWithKey(token);
 
         Claims claims = resultBody.getPayload();
 
-        return TokenValue.builder()
+        return TokenValueDto.builder()
                 .id(claims.getSubject())
-                .nickname(claims.get("nickname", String.class))
+                .nickname(claims.get("name", String.class))
                 .role(claims.get("role", String.class))
                 .build();
     }
 
-    public Member tokenFiltering()
+    public Member tokenDtoToMember (TokenValueDto tokenValueDto){
 
-
-
-    @Data
-    @Slf4j
-    @Builder
-    public static class TokenValue {
-
-        private String id;
-        private String nickname;
-        private String role;
-        private boolean isRefreshToken;
+        return memberService.getMemberById(Long.valueOf(tokenValueDto.getId()));
 
     }
+
 }

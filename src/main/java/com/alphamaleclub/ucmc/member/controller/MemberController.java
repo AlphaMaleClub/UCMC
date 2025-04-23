@@ -1,5 +1,6 @@
 package com.alphamaleclub.ucmc.member.controller;
 
+import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.MemberService;
 import com.alphamaleclub.ucmc.member.services.TokenManager;
@@ -33,7 +34,7 @@ public class MemberController {
         log.info("🔐 isAuthenticated: {}", auth.isAuthenticated());
         log.info("🔐 인증 클래스: {}", auth.getClass().getSimpleName());
 
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+        if (auth != null && auth.isAuthenticated() && auth instanceof CustomUserDetails) {
             log.warn("❌ 이미 로그인된 사용자입니다. 접근 차단.");
             return ResponseEntity.status(403).body("이미 로그인된 사용자는 접근할 수 없습니다.");
         }

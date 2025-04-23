@@ -106,6 +106,9 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
                 .role(member.getRole())
                 .build();
     }
+    public static CustomUserDetails memberToDetails(Member member){
+        return CustomUserDetails.memberToDetails(member, null);
+    }
 
 }
 

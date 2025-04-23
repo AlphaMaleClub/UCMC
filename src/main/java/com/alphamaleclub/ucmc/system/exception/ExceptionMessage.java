@@ -47,7 +47,7 @@ public class ExceptionMessage {
         public static final String INVALID_REISSUE_REQUEST = "이미 로그아웃처리 되었습니다.";
         public static final String MULTIPLE_ISSUED_REFRESH_TOKENS = "refresh 토큰이 중복 발행되었습니다.";
         public static final String ACCOUNT_ALREADY_EXISTS = "가입된 계정이 이미 존재합니다.";
-        public static final String TOKEN_IS_NOT_VALID = "토큰이 올바르지 않아 파싱로직이 실행되지 않았습니다.";
+        public static final String TOKEN_IS_NOT_VALID = "따라서 파싱이 이루어지지 않았습니다.";
 
     }
 
