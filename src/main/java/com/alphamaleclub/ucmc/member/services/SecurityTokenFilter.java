@@ -29,6 +29,19 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
     private final TokenManager tokenManager;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
+        String path = request.getRequestURI();
+
+        return (path.startsWith("/api/signup") ||
+                path.startsWith("/api/access-token") ||
+                path.startsWith("/oauth2/initiate")
+        );
+
+
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         //토큰 추출하기

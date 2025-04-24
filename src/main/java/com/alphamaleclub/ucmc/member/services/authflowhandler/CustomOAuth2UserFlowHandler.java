@@ -46,7 +46,7 @@ public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
                 return LOGIN_FAILED_URL;
             }
             case "signup" -> {
-                memberService.signUp(SignUpRequest.fromCustomOAuth2UserTestOnly(user));
+//                memberService.signUp(SignUpRequest.fromCustomOAuth2UserTestOnly(user));
                 return SIGNUP_SUCCESS_URL;
             }
 

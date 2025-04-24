@@ -26,7 +26,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf-> csrf.disable() )
                 .formLogin(formLogin ->formLogin
-                        .loginProcessingUrl("/login")
+                        .loginProcessingUrl("/api/login")
                         .successHandler(customSuccessHandler)
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -47,7 +47,8 @@ public class SecurityConfig {
                             .hasAnyAuthority("MEMBER", "ADMIN")
                         .requestMatchers("/admin/**")
                             .hasAnyAuthority("ADMIN")
-                        .requestMatchers("/api/auctions/**").permitAll()
+                        .requestMatchers("/api/auctions/**")
+                            .permitAll()
                         .anyRequest()
                             .authenticated()
                 )
