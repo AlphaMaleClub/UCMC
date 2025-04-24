@@ -18,14 +18,12 @@ import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 
 import java.security.PublicKey;
@@ -100,27 +98,26 @@ public class TokenManager {
                 .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_IS_NOT_VALID));
     }
 
-    public String extractRefreshToken(HttpServletRequest request) throws MissingTokenException {
-
-        return extractToken(request, "refreshToken");
-
-    }
 
     public String extractAccessToken(HttpServletRequest request) throws MissingTokenException {
 
-        return extractToken(request, "accessToken");
+        return Optional.of(request.getHeader("Authorization"))
+                .filter(tokenHeader -> tokenHeader.startsWith("Bearer "))
+                .map(tokenHeader -> tokenHeader.substring("Bearer ".length()))
+                .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.ACCESS_TOKEN_IS_NOT_VALID));
 
     }
 
-    private String extractToken(HttpServletRequest request, String tokenKey) throws MissingTokenException, NullPointerException {
+    private String extractRefreshToken(HttpServletRequest request) throws MissingTokenException, NullPointerException {
 
         Cookie[] cookies = request.getCookies();
 
         return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals(tokenKey))
+                .filter(cookie -> cookie.getName().equals("refreshToken"))
                 .findFirst()
                 .map(Cookie::getValue)
-                .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_NOT_FOUND + "TokenKey: " + tokenKey));
+                .orElseThrow(() -> new MissingTokenException(ExceptionMessage.Auth.TOKEN_NOT_FOUND + "TokenKey : Refresh Token "));
+
     }
 
     private Optional<Jws<Claims>> parsingToken(String token, PublicKey publicKey) {
@@ -175,15 +172,15 @@ public class TokenManager {
 
     }
 
-    public void refreshTokenReIssue(HttpServletRequest request, HttpServletResponse response) {
+    public String accessTokenReIssue(HttpServletRequest request) {
 
-        String token;
+        String refreshToken;
 
         try {
-            token = extractRefreshToken(request);
+            refreshToken = extractRefreshToken(request);
         } catch (MissingTokenException e) {
             log.warn(e.getMessage());
-            return;
+            return null;
         }
 
         Member targetMember = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
@@ -193,7 +190,7 @@ public class TokenManager {
                 .toList();
 
         try{
-            validateWithKey(token);
+            validateWithKey(refreshToken);
         }catch (MissingTokenException e){ // 토큰이 Expired 됐거나 발급된 리프레시 토큰이 하나 복수개인 경우 이상감지
             throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST);
         }
@@ -207,9 +204,7 @@ public class TokenManager {
 
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String accessToken = generateAccessToken(user);
-
-        response.addCookie(cookiesManager.makeCookie(accessToken, "accessToken"));
+        return generateAccessToken(user);
 
     }
 

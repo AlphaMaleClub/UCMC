@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 
 @Slf4j
 @Component
@@ -70,11 +72,17 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
         String accessToken = tokenPair.getAccessToken();
         String refreshToken = tokenPair.getRefreshToken();
 
-        response.addCookie(cookiesManager.makeCookie(accessToken,"accessToken"));
+        //refreshToken 은 쿠키로
         response.addCookie(cookiesManager.makeCookie(refreshToken,"refreshToken"));
 
+        // accessToken 은 커스텀 응답으로 줌(login Controller 없이 handler 에서 처리하기 때문에)
+        try{
+            response.setContentType("application/json");
+            response.getWriter().write("{\"accessToken\": \"" + accessToken + "\"}");
+        }catch(IOException e){
+            log.error("응답을 쓸 수 없습니다. 네트워크 에러입니다. {}", e.getMessage());
+        }
         log.info("Login User : [UserId = {}] [UserNickName = {}]", userDetails.getUserId(),userDetails.getNickname());
-
         return LOGIN_SUCCESS_URL;
 
     }

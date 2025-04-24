@@ -6,21 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExceptionMessage {
 
-    //Ex
-    public static class MemberAuth {
-        public static final String KAKAO_PROFILE_NOT_PROVIDED = "카카오 계정의 프로필 정보를 가져올 수 없습니다.";
-        public static final String UNSUPPORTED_PROVIDER_EXCEPTION = "지원하지 않는 소셜 서비스 입니다.";
-        public static final String MEMBER_NOT_FOUND_EXCEPTION = "회원을 찾을 수 없습니다.";
-
-        public static final String NICKNAME_ALREADY_EXIST = "변경하려는 닉네임이 중복됩니다.";
-        public static final String INVALID_REFRESH_TOKEN_PROVIDED = "변경하려는 닉네임이 중복됩니다.";
-        public static final String EMPTY_REFRESH_TOKEN = "변경하려는 닉네임이 중복됩니다.";
-        public static final String EXISTING_AUTHENTICATION_IS_NULL = "인가정보가 존재하지 않습니다.";
-        public static final String DELETED_ACCOUNT_EXCEPTION = "탈퇴한 회원 입니다.";
-        public static final String BANNED_ACCOUNT_EXCEPTION = "차단된 회원 입니다.";
-    }
-
-
     public static class Image {
         public static final String IMAGES_FILES_LIMIT_EXCEEDED_EXCEPTION = "파일이 5개 이상입니다";
         public static final String IMAGE_CONVERT_EXCEPTION = "convert 중 예외가 발생 하였습니다";
@@ -48,6 +33,9 @@ public class ExceptionMessage {
         public static final String MULTIPLE_ISSUED_REFRESH_TOKENS = "refresh 토큰이 중복 발행되었습니다.";
         public static final String ACCOUNT_ALREADY_EXISTS = "가입된 계정이 이미 존재합니다.";
         public static final String TOKEN_IS_NOT_VALID = "따라서 파싱이 이루어지지 않았습니다.";
+        public static final String ACCESS_TOKEN_IS_NOT_VALID = "따라서 파싱이 이루어지지 않았습니다.";
+
+
 
     }
 

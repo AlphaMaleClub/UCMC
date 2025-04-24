@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID","accessToken","refreshToken")
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/oauth2/initiate/**","/api/signup")
+                        .requestMatchers("/oauth2/initiate","/api/signup","/api/access-token")
                             .permitAll()
                         .requestMatchers(("/logout"))
                             .hasAnyAuthority("MEMBER", "ADMIN")

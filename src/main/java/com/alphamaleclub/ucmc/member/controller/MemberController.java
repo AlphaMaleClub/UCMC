@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +33,7 @@ public class MemberController {
         log.info("🔐 isAuthenticated: {}", auth.isAuthenticated());
         log.info("🔐 인증 클래스: {}", auth.getClass().getSimpleName());
 
-        if (auth != null && auth.isAuthenticated() && auth instanceof CustomUserDetails) {
+        if (auth.isAuthenticated() && auth instanceof CustomUserDetails) {
             log.warn("❌ 이미 로그인된 사용자입니다. 접근 차단.");
             return ResponseEntity.status(403).body("이미 로그인된 사용자는 접근할 수 없습니다.");
         }
@@ -80,9 +79,15 @@ public class MemberController {
     @PostMapping("/api/access-token")
     public ResponseEntity<?> accessTokenReIssue (HttpServletRequest request, HttpServletResponse response) {
 
-        tokenManager.refreshTokenReIssue(request, response);
+        String newAccessToken = tokenManager.accessTokenReIssue(request);
 
-        return ResponseEntity.ok("Access Token ok");
+        if(newAccessToken != null) {
+            return ResponseEntity.ok("Access Token ok");
+        }
+
+        return ResponseEntity.status(401).body("Refresh token expired or invalid");
+
+
     }
 
 
