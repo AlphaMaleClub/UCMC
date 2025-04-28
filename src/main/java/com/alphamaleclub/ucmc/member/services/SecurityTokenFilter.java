@@ -61,16 +61,35 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
         String accessToken;
 
         try {
+
             accessToken = tokenManager.extractAccessToken(request);
-            log.info("token extracting success : {}", accessToken);
+//            log.info("token extracting success : {}", accessToken);
+
         } catch (MissingTokenException | NullPointerException e) {
+
             log.warn(e.getMessage());
             failedProcess();
             filterChain.doFilter(request, response);
             throw new UnauthorizedAccessException("권한없음");
+
         }
 
-        successProcess(accessToken, response);
+
+        try {
+
+            successProcess(accessToken, response);
+
+        } catch (MissingTokenException e) {
+
+            log.warn(e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{}");
+            response.getWriter().flush();
+            response.getWriter().close();
+            return;
+
+        }
 
         filterChain.doFilter(request, response);
     }
@@ -87,25 +106,9 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
 
     }
 
-    private void successProcess(String token, HttpServletResponse response) throws IOException {
+    private void successProcess(String token, HttpServletResponse response) throws IOException, MissingTokenException {
 
-        TokenValueDto tokenDto;
-
-        try {
-
-            tokenDto = tokenManager.extractAccessTokenValue(token);
-
-        } catch (MissingTokenException e) {
-
-            log.warn(e.getMessage());
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized: AccessToken Is invalid");
-
-
-
-            return;
-        }
+        TokenValueDto tokenDto = tokenManager.extractAccessTokenValue(token);
 
         //읽은 값으로 멤버 찾기
         Member findMember = tokenManager.tokenDtoToMember(tokenDto);

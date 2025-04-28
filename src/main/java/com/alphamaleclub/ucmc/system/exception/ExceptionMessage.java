@@ -33,7 +33,7 @@ public class ExceptionMessage {
         public static final String MULTIPLE_ISSUED_REFRESH_TOKENS = "refresh 토큰이 중복 발행되었습니다.";
         public static final String ACCOUNT_ALREADY_EXISTS = "가입된 계정이 이미 존재합니다.";
         public static final String TOKEN_IS_NOT_VALID = "따라서 파싱이 이루어지지 않았습니다.";
-        public static final String ACCESS_TOKEN_IS_NOT_VALID = "따라서 파싱이 이루어지지 않았습니다.";
+        public static final String ACCESS_TOKEN_IS_NOT_VALID = "accessToken 이 유효하지 않습니다.";
         public static final String DETECTED_INVALID_LOGIN_ROOT = "provider 명시되어있는 사용자가 formLogin 을 시도했습니다.";
 
 

@@ -1,11 +1,13 @@
 package com.alphamaleclub.ucmc.member.controller;
 
+import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.ReissueAccessTokenResponse;
 import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.CookiesManager;
 import com.alphamaleclub.ucmc.member.services.MemberService;
 import com.alphamaleclub.ucmc.member.services.TokenManager;
+import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -74,7 +76,9 @@ public class MemberController {
     @PostMapping("/api/logout")
     public ResponseEntity<?> logOut (HttpServletResponse response){
 
-        tokenManager.expireRefreshToken();
+        Member member = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
+
+        tokenManager.expireRefreshToken(member);
 
         Cookie clearRefreshTokenCookie = cookiesManager.makeCookie("refreshToken", "",0);
 

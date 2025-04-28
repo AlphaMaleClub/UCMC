@@ -1,11 +1,14 @@
 package com.alphamaleclub.ucmc.member.services.authflowhandler;
 
+import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.TokenPair;
 import com.alphamaleclub.ucmc.member.services.CookiesManager;
+import com.alphamaleclub.ucmc.member.services.MemberService;
 import com.alphamaleclub.ucmc.member.services.TokenManager;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
 import com.alphamaleclub.ucmc.system.exception.auth.AccountAlreadyExistsException;
+import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,7 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
 
     private final TokenManager tokenManager;
     private final CookiesManager cookiesManager;
+    private final MemberService memberService;
 
     @Value("${success-handler.redirect-url.login-success}")
     private String LOGIN_SUCCESS_URL;
@@ -65,7 +69,9 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
 
     private String loginSuccess(HttpServletResponse response,CustomUserDetails userDetails) {
 
-        tokenManager.expireRefreshToken();
+        Member member = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
+
+        tokenManager.expireRefreshToken(member);
 
         TokenPair tokenPair = tokenManager.generateTokenPair(userDetails);
 

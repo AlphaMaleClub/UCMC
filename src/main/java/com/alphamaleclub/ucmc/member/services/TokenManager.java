@@ -112,6 +112,8 @@ public class TokenManager {
 
         Cookie[] cookies = request.getCookies();
 
+//        log.info("extractRefreshToken cookies: {}", (cookies == null) ? "null" : Arrays.toString(cookies));
+
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals("refreshToken"))
                 .findFirst()
@@ -156,9 +158,7 @@ public class TokenManager {
 
     }
 
-    public void expireRefreshToken() {
-
-        Member member = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
+    public void expireRefreshToken(Member member) {
 
         member.getRefreshTokens().stream()
                 .filter(refToken -> (!refToken.isExpired()))
@@ -167,10 +167,8 @@ public class TokenManager {
                         return refreshTokenRepository.save(refToken);
                 })
                 .forEach(refToken ->{
-                    log.info("해당 RefreshToken 이 Expired 처리 되었습니다. \n Value = {}", refToken.getToken());
+                    log.info("해당 RefreshToken 이 Expired 처리 되었습니다. Value = {}", refToken.getToken().substring(5,30));
                 });
-
-
 
     }
 
@@ -180,22 +178,26 @@ public class TokenManager {
 
         try {
             refreshToken = extractRefreshToken(request);
-        } catch (MissingTokenException e) {
+        } catch (MissingTokenException e) { //리프레시 토큰을 쿠키에서 못꺼내는 경우
             log.warn(e.getMessage());
             return null;
         }
 
-        Member targetMember = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
+        long getMemberId;
+
+        try{
+            getMemberId = Long.parseLong(validateWithKey(refreshToken).getPayload().getSubject());
+        }catch (MissingTokenException e){ // 토큰이 Expired 됐거나 발급된 리프레시 토큰이 하나 복수개인 경우 이상감지
+            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST);
+        }
+
+        //accessTokenReIssue 는 FilterChain 을 통과하지 못하기 때문에 컨텍스트에 있는걸 가져오면 안된다.
+        Member targetMember = memberService.getMemberById(getMemberId);
 
         List<RefreshToken> refreshTokens = targetMember.getRefreshTokens().stream()
                 .filter(refToken -> (!refToken.isExpired()))
                 .toList();
 
-        try{
-            validateWithKey(refreshToken);
-        }catch (MissingTokenException e){ // 토큰이 Expired 됐거나 발급된 리프레시 토큰이 하나 복수개인 경우 이상감지
-            throw new InvalidReIssueRequestException(ExceptionMessage.Auth.INVALID_REISSUE_REQUEST);
-        }
 
         if(refreshTokens.size() != 1){
             refreshTokens.forEach(refToken -> {
@@ -204,7 +206,8 @@ public class TokenManager {
             throw new InvalidReIssueRequestException(ExceptionMessage.Auth.MULTIPLE_ISSUED_REFRESH_TOKENS);
         }
 
-        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetails user = CustomUserDetails.memberToDetails(targetMember);
 
         return generateAccessToken(user);
 
@@ -212,9 +215,7 @@ public class TokenManager {
 
     public TokenValueDto extractAccessTokenValue(String token) throws MissingTokenException{
 
-        Jws<Claims> resultBody;
-
-        resultBody = validateWithKey(token);
+        Jws<Claims> resultBody = validateWithKey(token);
 
         Claims claims = resultBody.getPayload();
 
