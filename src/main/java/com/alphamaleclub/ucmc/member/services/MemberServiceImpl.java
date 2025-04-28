@@ -3,6 +3,7 @@ package com.alphamaleclub.ucmc.member.services;
 import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
 import com.alphamaleclub.ucmc.member.Repositorty.RefreshTokenRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
+import com.alphamaleclub.ucmc.member.domain.Provider;
 import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
@@ -89,7 +90,13 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     public UserDetails loadUserByUsername(String accountId) throws UsernameNotFoundException {
 
         Member findMember = this.getMemberByAccountId(accountId);
-        return CustomUserDetails.memberToDetails(findMember, "formLogin");
+        String provider = findMember.getProvider().toString();
+
+        if(provider.equals("none")){
+            return CustomUserDetails.memberToDetails(findMember, "formLogin");
+        }
+
+        throw new UsernameNotFoundException(ExceptionMessage.Auth.DETECTED_INVALID_LOGIN_ROOT);
 
     }
 
@@ -109,7 +116,6 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
 
 //        테스트로그
 //        showMeTheAttributes(oAuth2User);
-//        log.info("Custom OAuth2User : {}", customOauth2User);
 
         try {
             findMember = getMemberByEmail(customOauth2User.getEmail());

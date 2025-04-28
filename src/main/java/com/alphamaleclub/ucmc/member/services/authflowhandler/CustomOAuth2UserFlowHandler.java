@@ -1,7 +1,6 @@
 package com.alphamaleclub.ucmc.member.services.authflowhandler;
 
 import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
-import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.MemberService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -47,10 +51,23 @@ public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
             }
             case "signup" -> {
 //                memberService.signUp(SignUpRequest.fromCustomOAuth2UserTestOnly(user));
-                return SIGNUP_SUCCESS_URL;
+                return signupProcess(user);
             }
 
         }
         return null;
+    }
+
+    private String signupProcess(CustomOAuth2User user) {
+
+        return UriComponentsBuilder
+                .fromUriString(SIGNUP_SUCCESS_URL)
+                .queryParam("provider", user.getProvider())
+                .queryParam("realName", URLEncoder.encode(Optional.ofNullable(user.getRealName()).orElse(""), StandardCharsets.UTF_8))
+                .queryParam("nickname", URLEncoder.encode(Optional.ofNullable(user.getNickname()).orElse(""), StandardCharsets.UTF_8))
+                .queryParam("email", Optional.ofNullable(user.getEmail()).orElse(""))
+                .build()
+                .toUriString();
+
     }
 }

@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .csrf(csrf-> csrf.disable() )
                 .formLogin(formLogin ->formLogin
                         .loginProcessingUrl("/api/login")
+                        .permitAll()
                         .successHandler(customSuccessHandler)
                 )
                 .oauth2Login(oauth2 -> oauth2

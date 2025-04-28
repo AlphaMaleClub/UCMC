@@ -28,12 +28,17 @@ public class CookiesManager {
     }
 
     private Cookie makeCookieLogic(String cookieName,String tokenValue,int lifeTime){
+
+        boolean isHttpOnly = cookieName.equals("refreshToken");
+
         Cookie cookie = new Cookie(cookieName,tokenValue);
-        cookie.setMaxAge(lifeTime);
+//        cookie.setMaxAge(lifeTime); //세션쿠키로 지정하기 위해 해당 줄 주석처리
         cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false); //개발환경에서는 http, 배포시 https;
+        cookie.setHttpOnly(isHttpOnly);
+        cookie.setSecure(false); //개발환경에서는 false(http), 배포시 true(https)
         return cookie;
     }
+
+
 
 }

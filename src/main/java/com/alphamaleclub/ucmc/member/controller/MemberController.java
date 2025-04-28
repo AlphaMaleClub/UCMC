@@ -1,7 +1,9 @@
 package com.alphamaleclub.ucmc.member.controller;
 
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
+import com.alphamaleclub.ucmc.member.dto.ReissueAccessTokenResponse;
 import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
+import com.alphamaleclub.ucmc.member.services.CookiesManager;
 import com.alphamaleclub.ucmc.member.services.MemberService;
 import com.alphamaleclub.ucmc.member.services.TokenManager;
 import jakarta.servlet.http.Cookie;
@@ -24,6 +26,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final TokenManager tokenManager;
+    private final CookiesManager cookiesManager;
 
     @GetMapping("/oauth2/initiate")
     public ResponseEntity<?> initHandler(@RequestParam("intent") String intent, @RequestParam("provider") String provider, HttpServletResponse response) throws IOException {
@@ -68,10 +71,14 @@ public class MemberController {
         return ResponseEntity.ok("Signup ok");
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logOut (){
+    @PostMapping("/api/logout")
+    public ResponseEntity<?> logOut (HttpServletResponse response){
 
         tokenManager.expireRefreshToken();
+
+        Cookie clearRefreshTokenCookie = cookiesManager.makeCookie("refreshToken", "",0);
+
+        response.addCookie(clearRefreshTokenCookie);
 
         return ResponseEntity.ok("LogOut ok");
     }
@@ -81,8 +88,12 @@ public class MemberController {
 
         String newAccessToken = tokenManager.accessTokenReIssue(request);
 
+        ReissueAccessTokenResponse reissueAccessTokenResponse = ReissueAccessTokenResponse.builder()
+                .accessToken(newAccessToken)
+                .build();
+
         if(newAccessToken != null) {
-            return ResponseEntity.ok("Access Token ok");
+            return ResponseEntity.ok(reissueAccessTokenResponse);
         }
 
         return ResponseEntity.status(401).body("Refresh token expired or invalid");

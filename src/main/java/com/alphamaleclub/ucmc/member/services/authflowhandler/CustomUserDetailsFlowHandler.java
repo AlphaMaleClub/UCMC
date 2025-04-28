@@ -65,6 +65,8 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
 
     private String loginSuccess(HttpServletResponse response,CustomUserDetails userDetails) {
 
+        tokenManager.expireRefreshToken();
+
         TokenPair tokenPair = tokenManager.generateTokenPair(userDetails);
 
         tokenManager.saveRefreshToken(tokenPair.getAccessToken());
@@ -75,13 +77,19 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
         //refreshToken 은 쿠키로
         response.addCookie(cookiesManager.makeCookie(refreshToken,"refreshToken"));
 
-        // accessToken 은 커스텀 응답으로 줌(login Controller 없이 handler 에서 처리하기 때문에)
-        try{
-            response.setContentType("application/json");
-            response.getWriter().write("{\"accessToken\": \"" + accessToken + "\"}");
-        }catch(IOException e){
-            log.error("응답을 쓸 수 없습니다. 네트워크 에러입니다. {}", e.getMessage());
-        }
+        //accessToken 은 읽을 수 있는 쿠키로
+        response.addCookie(cookiesManager.makeCookie(accessToken,"accessToken"));
+
+
+//         accessToken 은 커스텀 응답으로 줌(login Controller 없이 handler 에서 처리하기 때문에)
+//        try{
+//            response.setContentType("application/json");
+//            response.getWriter().write("{\"accessToken\": \"" + accessToken + "\"}");
+//        }catch(IOException e){
+//            log.error("응답을 쓸 수 없습니다. 네트워크 에러입니다. {}", e.getMessage());
+//        }
+
+
         log.info("Login User : [UserId = {}] [UserNickName = {}]", userDetails.getUserId(),userDetails.getNickname());
         return LOGIN_SUCCESS_URL;
 
