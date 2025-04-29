@@ -1,6 +1,5 @@
 package com.alphamaleclub.ucmc.auction.controller;
 
-import com.alphamaleclub.ucmc.auction.dto.AuctionImageResponse;
 import com.alphamaleclub.ucmc.auction.dto.AuctionRequest;
 import com.alphamaleclub.ucmc.auction.dto.AuctionResponse;
 import com.alphamaleclub.ucmc.auction.service.AuctionServiceImpl;
@@ -8,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,11 +22,10 @@ public class AuctionController {
 
     private final AuctionServiceImpl auctionService;
 
-    // 경매글 작성 (multipart/formdata 만 받는다는걸 명시함)
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> create(@RequestPart("dto") AuctionRequest dto,
-                                       @RequestPart("images") List<MultipartFile> imageFiles) throws IOException {
-
+    // 경매글 작성
+    @PostMapping
+    public ResponseEntity<Long> create(@RequestBody AuctionRequest dto,
+                                       @RequestParam("images") List<MultipartFile> imageFiles) throws IOException {
         Long auctionId = auctionService.createAuction(dto, imageFiles);
         return ResponseEntity.ok(auctionId);
     }
@@ -75,12 +72,6 @@ public class AuctionController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         auctionService.deleteAuction(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}/images")
-    public ResponseEntity<List<AuctionImageResponse>> getImages(@PathVariable Long id) {
-        List<AuctionImageResponse> images = auctionService.getAuctionImages(id);
-        return ResponseEntity.ok(images);
     }
 
     // 경매글 첨부 사진 수정: 수정할 이미지 ID와 새 파일을 매핑하여 받음

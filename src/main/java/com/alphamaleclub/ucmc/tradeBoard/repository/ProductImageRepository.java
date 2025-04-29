@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
 
-    List<ProductImage> findByPostTypeAndPostNumber(PostType postType, Long postNumber);
+    List<ProductImage> findByPostNumber(Long postNumber);
 
     Page<ProductImage> findByPostType(PostType postType, Pageable pageable);
 

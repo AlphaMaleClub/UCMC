@@ -2,6 +2,7 @@ package com.alphamaleclub.ucmc.tradeBoard.domain;
 
 
 import com.alphamaleclub.ucmc.member.domain.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +26,7 @@ public class TradePost {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.ON_SALE;
+    private TradeStatus tradeStatus = TradeStatus.ON_SALE;
 
     @Column(nullable = false)
     private String locate;
@@ -43,6 +44,7 @@ public class TradePost {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="member_id", nullable = false)
+    @JsonIgnore
     private Member member;
 
     @Column
@@ -65,9 +67,9 @@ public class TradePost {
     }
 
 
-    public void  updateTradePost (Status status,String title, Long price, String locate,
-                                  String contents,DeliveryType deliveryType,  Long dumpedCount, LocalDateTime updatedAt) {
-        this.status = status;
+    public void  updateTradePost (TradeStatus tradeStatus, String title, Long price, String locate,
+                                  String contents, DeliveryType deliveryType, Long dumpedCount, LocalDateTime updatedAt) {
+        this.tradeStatus = tradeStatus;
         this.title = title;
         this.price = price;
         this.locate = locate;

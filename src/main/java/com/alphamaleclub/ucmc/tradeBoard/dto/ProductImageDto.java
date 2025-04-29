@@ -1,13 +1,11 @@
-package com.alphamaleclub.ucmc.auction.dto;
+package com.alphamaleclub.ucmc.tradeBoard.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AuctionImageResponse {
-
-    private Long id;
+public class ProductImageDto {
+    private Long postId;
     private String imageUrl;
-
 }

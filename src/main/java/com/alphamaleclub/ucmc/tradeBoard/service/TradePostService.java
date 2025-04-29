@@ -1,6 +1,6 @@
 package com.alphamaleclub.ucmc.tradeBoard.service;
 
-import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
+import com.alphamaleclub.ucmc.tradeBoard.domain.TradeStatus;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,15 +14,21 @@ public interface TradePostService {
     // member 파라미터로 받아서 따로 추가해주는 작업 해야함, principle 사용
     TradePost saveTradePost(CreateTradeBoardRequest request);
 
-    TradePostMessageResponse updateTradePost(UpdatePostRequest request, List<MultipartFile> sourceImage) throws IOException;
+    TradePostMessageResponse updateTradePost(Long postId,UpdatePostRequest request, List<MultipartFile> sourceImage) throws IOException;
 
     TradePostMessageResponse deleteTradePost(Long postId);
 
+    Top10PostResponse findTop10();
+
+    GetAllTradePostAndImagesMessageResponse getAllTradePost(int page, String srot);
+
     TradePostAndProductImageResponse getTradePost(Long postId);
 
-    TradePostMessageResponse updateOnlyStatusTradePost(Long postId, Status status);
+    TradePostMessageResponse updateOnlyStatusTradePost(Long postId, TradeStatus tradeStatus);
 
     TradePostMessageResponse updateOnlyUpdatedAt(Long postId);
 
     TradePost getPostById(Long postId);
+
+    void createDummyPost();
 }

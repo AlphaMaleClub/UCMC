@@ -2,11 +2,11 @@ package com.alphamaleclub.ucmc.tradeBoard.service.impl;
 
 import com.alphamaleclub.ucmc.image.domain.PostType;
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
+import com.alphamaleclub.ucmc.tradeBoard.dto.GetTradePostImageResponse;
 import com.alphamaleclub.ucmc.tradeBoard.repository.ProductImageRepository;
 import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +35,9 @@ public class ProductImageServiceImpl implements ProductImageService {
     }
 
     @Override
-    public List<ProductImage> getTradeProductImagesByPostTypeAndPostNumber(PostType postType, Long postNumber) {
+    public List<ProductImage> getTradeProductImagesByPostNumber(Long postNumber) {
 
-        List<ProductImage> images = productImageRepository.findByPostTypeAndPostNumber(postType, postNumber);
+        List<ProductImage> images = productImageRepository.findByPostNumber(postNumber);
 
         return images;
 
@@ -55,5 +55,38 @@ public class ProductImageServiceImpl implements ProductImageService {
 
         return images;
     }
+
+
+    @Override
+    public ProductImage getProductImageByPostNumber(Long postNumber) {
+
+        List<ProductImage> byPostNumber = productImageRepository.findByPostNumber(postNumber);
+
+        if (byPostNumber.isEmpty()) {
+            return null;
+        }
+
+        ProductImage result = byPostNumber.get(0);
+
+        return result;
+    }
+
+
+    @Override
+    public GetTradePostImageResponse getProductImageFirstByPostNumber(Long postNumber) {
+
+        List<ProductImage> byPostNumber = productImageRepository.findByPostNumber(postNumber);
+
+        ProductImage productImage = byPostNumber.get(0);
+
+        GetTradePostImageResponse result = GetTradePostImageResponse.builder()
+                .message("Success Get Product Image By Post Number")
+                .result(true)
+                .productImage(productImage)
+                .build();
+
+        return result;
+    }
+
 
 }
