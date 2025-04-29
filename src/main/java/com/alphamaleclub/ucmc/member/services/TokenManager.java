@@ -160,7 +160,10 @@ public class TokenManager {
 
     public void expireRefreshToken(Member member) {
 
-        member.getRefreshTokens().stream()
+        // 영속화 하기 위해서 아래 코드 추가.
+        Member managedMember = memberService.getMemberById(member.getId());
+
+        managedMember.getRefreshTokens().stream()
                 .filter(refToken -> (!refToken.isExpired()))
                 .map(refToken -> {
                         refToken.setExpired(true);

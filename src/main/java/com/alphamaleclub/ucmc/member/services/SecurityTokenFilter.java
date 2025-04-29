@@ -36,7 +36,8 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
         log.info("[White Filter 로그임] URI: {}", path);
         log.info("[White Filter 로그임] URL: {}", url);
 
-        return (path.startsWith("/api/signup") ||
+        return (
+                path.startsWith("/api/signup") ||
                 path.startsWith("/api/access-token") ||
                 path.startsWith("/oauth2/initiate") ||
                 path.startsWith("/login/oauth2/**") ||
@@ -44,7 +45,6 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
                 path.startsWith("/api/login") ||
                 path.startsWith("/login")
         );
-
 
     }
 

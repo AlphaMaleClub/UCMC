@@ -5,7 +5,9 @@ import com.alphamaleclub.ucmc.image.domain.PostType;
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
+import com.alphamaleclub.ucmc.member.services.MemberService;
 import com.alphamaleclub.ucmc.system.exception.tradeboard.PostNotFoundException;
+import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
@@ -40,6 +42,7 @@ public class TradePostServiceImpl implements TradePostService {
     private final ProductImageConvertService productImageConvertService;
     private final ProductImageService productImageService;
     private final S3StorageService s3StorageService;
+    private final MemberService memberService;
 
     private final MemberRepository memberRepository;
 
@@ -88,11 +91,10 @@ public class TradePostServiceImpl implements TradePostService {
     public TradePost saveTradePost(CreateTradeBoardRequest request) {
 
         // 현재는 더미 member
-        Member member = Member.builder()
-                .nickname("시현")
-                .build();
+        Long currentMemberId = SecurityUtil.getCurrentMemberId();
 
-        memberRepository.save(member);
+        Member member = memberService.getMemberById(currentMemberId);
+
         log.info("member = {}", member);
 
         TradePost tradePost = TradePost.builder()
