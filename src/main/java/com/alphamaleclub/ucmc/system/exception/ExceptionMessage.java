@@ -35,7 +35,6 @@ public class ExceptionMessage {
         public static final String TOKEN_IS_NOT_VALID = "따라서 파싱이 이루어지지 않았습니다.";
         public static final String ACCESS_TOKEN_IS_NOT_VALID = "accessToken 이 유효하지 않습니다.";
         public static final String DETECTED_INVALID_LOGIN_ROOT = "provider 명시되어있는 사용자가 formLogin 을 시도했습니다.";
-
     }
 
     public static class Member{
