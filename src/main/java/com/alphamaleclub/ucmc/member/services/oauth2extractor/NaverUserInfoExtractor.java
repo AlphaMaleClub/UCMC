@@ -43,6 +43,7 @@ public class NaverUserInfoExtractor implements Oauth2UserInfoExtractor {
                 .realName((String) response.get("name"))
                 .role("Unregistered")
                 .build();
+
     }
 
 }

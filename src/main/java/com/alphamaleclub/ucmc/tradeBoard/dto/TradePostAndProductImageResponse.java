@@ -2,7 +2,7 @@ package com.alphamaleclub.ucmc.tradeBoard.dto;
 
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
-import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
+import com.alphamaleclub.ucmc.tradeBoard.domain.TradeStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ public class TradePostAndProductImageResponse {
     String title;
     String content;
     Long price;
-    Status status;
+    TradeStatus tradeStatus;
     String locate;
     LocalDateTime createdAt;
     String nickName;

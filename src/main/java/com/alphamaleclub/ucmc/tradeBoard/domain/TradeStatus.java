@@ -1,6 +1,6 @@
 package com.alphamaleclub.ucmc.tradeBoard.domain;
 
-public enum Status {
+public enum TradeStatus {
 
     ON_SALE,    // 판매 중
     SOLD_OUT,   // 판매 완료

@@ -1,9 +1,8 @@
 package com.alphamaleclub.ucmc.tradeBoard.service;
 
-import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
+import com.alphamaleclub.ucmc.tradeBoard.domain.TradeStatus;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -25,7 +24,7 @@ public interface TradePostService {
 
     TradePostAndProductImageResponse getTradePost(Long postId);
 
-    TradePostMessageResponse updateOnlyStatusTradePost(Long postId, Status status);
+    TradePostMessageResponse updateOnlyStatusTradePost(Long postId, TradeStatus tradeStatus);
 
     TradePostMessageResponse updateOnlyUpdatedAt(Long postId);
 

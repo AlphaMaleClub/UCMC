@@ -80,7 +80,7 @@ public class TradeBoardController {
     @PutMapping("/updatePostStatus/{postId}")
     public ResponseEntity<TradePostMessageResponse> updateOnlyStatusTradePost(@PathVariable Long postId, @RequestBody StatusUpdateRequest status) {
 
-        TradePostMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status.getStatus());
+        TradePostMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status.getTradeStatus());
 
         return ResponseEntity.ok(result);
     }
