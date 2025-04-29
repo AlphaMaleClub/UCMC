@@ -50,6 +50,8 @@ dependencies {
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // https://mvnrepository.com/artifact/software.amazon.awssdk/s3
+    implementation "org.springframework.boot:spring-boot-starter-reactor-netty"
+
 }
 
 tasks.named('test') {

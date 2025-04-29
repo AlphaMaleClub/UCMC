@@ -1,10 +1,14 @@
 package com.alphamaleclub.ucmc.member.domain;
+import com.alphamaleclub.ucmc.chat.entity.ChatRoom;
+import com.alphamaleclub.ucmc.chat.entity.UserChatRoom;
 import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -57,6 +61,16 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<RefreshToken> refreshTokens;
+
+    // 채팅방과의 중간 테이블 매핑
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserChatRoom> userChatRooms = new ArrayList<>();
+
+    public List<ChatRoom> getChatRooms() {
+        return userChatRooms.stream()
+                .map(UserChatRoom::getChatRoom)
+                .collect(Collectors.toList());
+    };
 
 
     @Builder

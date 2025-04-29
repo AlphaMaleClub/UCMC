@@ -1,5 +1,6 @@
 package com.alphamaleclub.ucmc.system.util;
 
+import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -20,5 +21,7 @@ public class SecurityUtil {
         }
         return ((CustomUserDetails) authentication.getPrincipal()).getUserId();
     }
+
+
 
 }

@@ -65,6 +65,13 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     }
 
     @Override
+    public Member getMemberByNickname(String nickname) {
+        return memberRepository.findByNickname(nickname).orElseThrow(
+                ()-> new UserNotFoundException((ExceptionMessage.Member.MEMBER_NOT_FOUND))
+        );
+    }
+
+    @Override
     public Member getMemberByAccountId(String accountId) {
 
         return memberRepository.findByAccountId(accountId).orElseThrow(

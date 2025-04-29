@@ -55,7 +55,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<ChatRoomResponse> getChatRoomListByMemberId(Authentication authentication) {
 //        MemberDetails memberDetails = memberService.getMemberDetails(authentication);
-        Member loginMember = memberService.getLoginMember(authentication);
+        Member loginMember = memberService.getLoginedMember();
         List<ChatRoom> chatRooms = loginMember.getChatRooms();
         return chatRooms.stream()
                 .filter(chatRoom -> chatRoom.getLastMessage() != null)
