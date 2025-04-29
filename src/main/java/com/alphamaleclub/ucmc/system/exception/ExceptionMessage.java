@@ -49,6 +49,13 @@ public class ExceptionMessage {
 
     }
 
+
+    public static class Chat{
+        public static final String CHAT_ROOM_FOUND_ERROR = "채팅방을 찾을 수 없습니다";
+        public static final String USER_NOT_IN_CHAT_ROOM_ERROR = "사용자가 해당 채팅방에 참여하고 있지 않습니다.";
+        public static final String INVALID_CHAT_ROOM_CREATION_ERROR = "올바르지 않은 채팅방 개설입니다.";
+    }
+
     public static class Auction {
         public static final String INVALID_START_PRICE_EXCEPTION = "경매 시작 가격을 확인해주세요.";
         public static final String AUCTION_NOT_EDITABLE_EXCEPTION = "이미 입찰자가 있으므로 수정/삭제가 불가능합니다.";
@@ -59,5 +66,6 @@ public class ExceptionMessage {
         public static final String AUCTION_NOT_EXIST_EXCEPTION = "경매글이 존재하지 않습니다.";
 
     }
+
 
 }
