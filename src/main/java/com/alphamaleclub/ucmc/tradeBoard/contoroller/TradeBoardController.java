@@ -1,9 +1,10 @@
 package com.alphamaleclub.ucmc.tradeBoard.contoroller;
 
 
-import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
+
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
-import com.alphamaleclub.ucmc.tradeBoard.service.impl.TradePostServiceImpl;
+import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageService;
+import com.alphamaleclub.ucmc.tradeBoard.service.TradePostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +17,23 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/Trade")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
 public class TradeBoardController {
 
-    private final TradePostServiceImpl tradePostService;
+    private final TradePostService tradePostService;
+    private final ProductImageService productImageService;
+
+    @GetMapping(path = "/Top10Post")
+    public ResponseEntity<Top10PostResponse> getTop10Post() {
+
+        System.out.println("백엔드 도착");
+        Top10PostResponse result = tradePostService.findTop10();
+
+        return ResponseEntity.ok(result);
+    }
 
     @PostMapping(path = "/createPost", consumes = "multipart/form-data")
-    public ResponseEntity<TradePostMessageResponse> createTradePost(@RequestPart("data") CreateTradeBoardRequest request, @RequestParam("images") List<MultipartFile> images) throws IOException {
-        log.info("images = {}", images);
+    public ResponseEntity<TradePostMessageResponse> createTradePost(@RequestPart("data") CreateTradeBoardRequest request, @RequestPart("images") List<MultipartFile> images) throws IOException {
+
         TradePostMessageResponse result = tradePostService.createTradePost(request, images);
 
         return ResponseEntity.ok(result);
@@ -31,10 +41,11 @@ public class TradeBoardController {
     }
 
     @GetMapping("/readAllPost")
-    public ResponseEntity<GetAllTradePostAndImagesMessageResponse> readAllPost(@RequestParam  int page) {
-
-        GetAllTradePostAndImagesMessageResponse result = tradePostService.getAllTradePost(page);
-
+    public ResponseEntity<GetAllTradePostAndImagesMessageResponse> readAllPost(
+            @RequestParam int page,
+            @RequestParam(defaultValue = "updatedAt,desc") String sort
+    ) {
+        GetAllTradePostAndImagesMessageResponse result = tradePostService.getAllTradePost(page, sort);
         return ResponseEntity.ok(result);
     }
 
@@ -48,10 +59,12 @@ public class TradeBoardController {
     }
 
 
-    @PutMapping(value = "/updatePost", consumes = "multipart/form-data")
-    public ResponseEntity<TradePostMessageResponse> updateTradePost(@RequestPart("data") UpdatePostRequest request, @RequestParam("images") List<MultipartFile> images) throws IOException {
+    @PutMapping(value = "/updatePost/{postId}", consumes = "multipart/form-data")
+    public ResponseEntity<TradePostMessageResponse> updateTradePost(@PathVariable Long postId,@RequestPart("data") UpdatePostRequest request, @RequestPart("images") List<MultipartFile> images) throws IOException {
 
-        TradePostMessageResponse result = tradePostService.updateTradePost(request, images);
+
+        TradePostMessageResponse result = tradePostService.updateTradePost(postId,request, images);
+
 
         return ResponseEntity.ok(result);
     }
@@ -59,16 +72,15 @@ public class TradeBoardController {
     @DeleteMapping( "/deletePost/{postId}")
     public ResponseEntity<TradePostMessageResponse> deleteTradePost(@PathVariable Long postId) {
 
-        log.info("postId = {}", postId);
         TradePostMessageResponse result = tradePostService.deleteTradePost(postId);
 
         return ResponseEntity.ok(result);
     }
 
     @PutMapping("/updatePostStatus/{postId}")
-    public ResponseEntity<TradePostMessageResponse> updateOnlyStatusTradePost(@PathVariable Long postId, Status status) {
+    public ResponseEntity<TradePostMessageResponse> updateOnlyStatusTradePost(@PathVariable Long postId, @RequestBody StatusUpdateRequest status) {
 
-        TradePostMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status);
+        TradePostMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status.getTradeStatus());
 
         return ResponseEntity.ok(result);
     }
@@ -76,13 +88,28 @@ public class TradeBoardController {
     @PutMapping("/bumpPost/{postId}")
     public ResponseEntity<TradePostMessageResponse> BumpPost(@PathVariable Long postId) {
 
+        System.out.println("도착");
         TradePostMessageResponse result = tradePostService.updateOnlyUpdatedAt(postId);
 
         return ResponseEntity.ok(result);
     }
 
 
+    @GetMapping(path = "getOnlyFirstImage/{postId}")
+    public ResponseEntity<GetTradePostImageResponse> getOnlyFirstPicture(@PathVariable Long postId) {
 
+        GetTradePostImageResponse result = productImageService.getProductImageFirstByPostNumber(postId);
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 더미 파일 생성용
+    @PostMapping(path = "/createDummyPost")
+    public void createTradePost() {
+
+        tradePostService.createDummyPost();
+
+    }
 
 
 }

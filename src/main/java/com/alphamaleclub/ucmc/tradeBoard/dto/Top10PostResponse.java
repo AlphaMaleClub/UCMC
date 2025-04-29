@@ -1,23 +1,18 @@
 package com.alphamaleclub.ucmc.tradeBoard.dto;
 
-
-import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.data.domain.Page;
-
 import java.util.List;
 
-
-@Getter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Builder
-public class GetAllTradePostAndImagesMessageResponse {
+public class Top10PostResponse {
 
     private String message;
     private boolean result;
-    private Page<TradePost> tradePosts;
+    private List<TradePost> tradePosts;
     private List<ProductImageDto> images;
+
 }

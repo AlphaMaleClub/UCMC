@@ -1,5 +1,6 @@
 package com.alphamaleclub.ucmc.tradeBoard.dto;
 
+import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -11,15 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTradeBoardRequest {
+public class GetTradePostImageResponse {
 
 
-    String title;
-    String content;
-    Long price;
-    String Locate;
-    @Enumerated
-    DeliveryType deliveryType;
+        private String message;
+        private boolean result;
+        private ProductImage productImage;
 
 
 }
