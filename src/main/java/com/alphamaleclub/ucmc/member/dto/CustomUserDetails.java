@@ -29,6 +29,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private String password;
     private String nickname;
+    private String loginMethod;
     private boolean isLocked; // 벤당한 회원: True
     private boolean isAccountExpired; //계정의 만료는 딱히 두고있지 않으니 항상 True일 것.
     private boolean isPasswordExpired;
@@ -80,10 +81,11 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     }
 
     @Builder
-    public CustomUserDetails(Long userId, String password, String nickname, boolean isLocked, boolean isAccountExpired, boolean isPasswordExpired, boolean isEnabled, Role role) {
+    public CustomUserDetails(Long userId, String password, String nickname,String loginMethod, boolean isLocked, boolean isAccountExpired, boolean isPasswordExpired, boolean isEnabled, Role role) {
         this.userId = userId;
         this.password = password;
         this.nickname = nickname;
+        this.loginMethod = loginMethod;
         this.isLocked = isLocked;
         this.isAccountExpired = isAccountExpired;
         this.isPasswordExpired = isPasswordExpired;
@@ -91,17 +93,21 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         this.role = role.toString();
     }
 
-    public static CustomUserDetails memberToDetails(Member member){
+    public static CustomUserDetails memberToDetails(Member member, String loginMethod){
         return CustomUserDetails.builder()
                 .userId(member.getId())
                 .password(member.getPassword())
                 .nickname(member.getNickname())
-                .isLocked(member.getStatus() == Status.locked)
-                .isAccountExpired(member.getStatus() == Status.expired)
-                .isPasswordExpired(member.getStatus() == Status.passwordExpired)
-                .isEnabled(member.getStatus() == Status.active)
+                .loginMethod(loginMethod)
+                .isLocked(member.getStatus() == Status.LOCKED)
+                .isAccountExpired(member.getStatus() == Status.EXPIRED)
+                .isPasswordExpired(member.getStatus() == Status.PASSWORD_EXPIRED)
+                .isEnabled(member.getStatus() == Status.ACTIVE)
                 .role(member.getRole())
                 .build();
+    }
+    public static CustomUserDetails memberToDetails(Member member){
+        return CustomUserDetails.memberToDetails(member, null);
     }
 
 }
