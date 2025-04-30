@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdatePostRequest {
 
-    TradeStatus tradeStatus;
+    TradeStatus status;
 
     String title;
 

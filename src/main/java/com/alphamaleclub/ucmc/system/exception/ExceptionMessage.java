@@ -66,6 +66,10 @@ public class ExceptionMessage {
         public static final String AUCTION_NOT_EXIST_EXCEPTION = "경매글이 존재하지 않습니다.";
 
     }
+    public static class Trade {
+        public static final String POST_ID_IS_NULL = "postId가 Null 입니다.";
+        public static final String CHECK_AUTHOR_EXCEPTION = "글 작성자가 아닙니다.";
+    }
 
 
 }

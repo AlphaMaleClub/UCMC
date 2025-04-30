@@ -2,6 +2,7 @@ package com.alphamaleclub.ucmc.tradeBoard.contoroller;
 
 
 
+import com.alphamaleclub.ucmc.tradeBoard.anotation.AuthorOnly;
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
 import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageService;
 import com.alphamaleclub.ucmc.tradeBoard.service.TradePostService;
@@ -15,14 +16,14 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/Trade")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class TradeBoardController {
 
     private final TradePostService tradePostService;
     private final ProductImageService productImageService;
 
-    @GetMapping(path = "/Top10Post")
+    @GetMapping(path = "/trade-posts/top10")
     public ResponseEntity<Top10PostResponse> getTop10Post() {
 
         System.out.println("백엔드 도착");
@@ -30,8 +31,8 @@ public class TradeBoardController {
 
         return ResponseEntity.ok(result);
     }
-
-    @PostMapping(path = "/createPost", consumes = "multipart/form-data")
+    //글 작성
+    @PostMapping(path = "/trade-posts", consumes = "multipart/form-data")
     public ResponseEntity<TradePostMessageResponse> createTradePost(@RequestPart("data") CreateTradeBoardRequest request, @RequestPart("images") List<MultipartFile> images) throws IOException {
 
         TradePostMessageResponse result = tradePostService.createTradePost(request, images);
@@ -39,8 +40,8 @@ public class TradeBoardController {
         return ResponseEntity.ok(result);
 
     }
-
-    @GetMapping("/readAllPost")
+    //전체 글 조회
+    @GetMapping("/trade-posts")
     public ResponseEntity<GetAllTradePostAndImagesMessageResponse> readAllPost(
             @RequestParam int page,
             @RequestParam(defaultValue = "updatedAt,desc") String sort
@@ -49,19 +50,21 @@ public class TradeBoardController {
         return ResponseEntity.ok(result);
     }
 
-
-    @GetMapping("/readPost/{postId}")
+    // 특정 글 조회
+    @GetMapping("/trade-posts/{postId}")
     public ResponseEntity<TradePostAndProductImageResponse> readTradePost(@PathVariable Long postId) {
 
-        TradePostAndProductImageResponse result = tradePostService.getTradePost(postId);
+        TradePostAndProductImageResponse result = tradePostService.getTradePostAndImages(postId);
 
         return ResponseEntity.ok(result);
     }
 
-
-    @PutMapping(value = "/updatePost/{postId}", consumes = "multipart/form-data")
+    //글 수정
+    @AuthorOnly
+    @PutMapping(value = "/trade-posts/{postId}", consumes = "multipart/form-data")
     public ResponseEntity<TradePostMessageResponse> updateTradePost(@PathVariable Long postId,@RequestPart("data") UpdatePostRequest request, @RequestPart("images") List<MultipartFile> images) throws IOException {
-
+        log.info("request = {}", request);
+        log.info("images = {}", images);
 
         TradePostMessageResponse result = tradePostService.updateTradePost(postId,request, images);
 
@@ -69,7 +72,9 @@ public class TradeBoardController {
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping( "/deletePost/{postId}")
+    //글 삭제
+    @AuthorOnly
+    @DeleteMapping( "/trade-posts/{postId}")
     public ResponseEntity<TradePostMessageResponse> deleteTradePost(@PathVariable Long postId) {
 
         TradePostMessageResponse result = tradePostService.deleteTradePost(postId);
@@ -77,25 +82,28 @@ public class TradeBoardController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/updatePostStatus/{postId}")
+    //status 변경
+    @AuthorOnly
+    @PutMapping("/trade-posts/{postId}/status")
     public ResponseEntity<TradePostMessageResponse> updateOnlyStatusTradePost(@PathVariable Long postId, @RequestBody StatusUpdateRequest status) {
 
-        TradePostMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status.getTradeStatus());
+        TradePostMessageResponse result = tradePostService.updateOnlyStatusTradePost(postId,status.getStatus());
 
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/bumpPost/{postId}")
+    //끌어올리기
+    @AuthorOnly
+    @PutMapping("/trade-posts/{postId}/bump")
     public ResponseEntity<TradePostMessageResponse> BumpPost(@PathVariable Long postId) {
 
-        System.out.println("도착");
         TradePostMessageResponse result = tradePostService.updateOnlyUpdatedAt(postId);
 
         return ResponseEntity.ok(result);
     }
 
 
-    @GetMapping(path = "getOnlyFirstImage/{postId}")
+    @GetMapping(path = "/trade-posts/{postId}/thumbnail")
     public ResponseEntity<GetTradePostImageResponse> getOnlyFirstPicture(@PathVariable Long postId) {
 
         GetTradePostImageResponse result = productImageService.getProductImageFirstByPostNumber(postId);
