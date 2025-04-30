@@ -7,7 +7,9 @@ import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
 import com.alphamaleclub.ucmc.member.domain.Provider;
 import com.alphamaleclub.ucmc.member.domain.Role;
+import com.alphamaleclub.ucmc.member.services.MemberService;
 import com.alphamaleclub.ucmc.system.exception.tradeboard.PostNotFoundException;
+import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
 import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
@@ -46,7 +48,7 @@ public class TradePostServiceImpl implements TradePostService {
     private final ProductImageService productImageService;
     private final S3StorageService s3StorageService;
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     String baseUrl = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
 
@@ -185,21 +187,11 @@ public class TradePostServiceImpl implements TradePostService {
     // member 파라미터로 받아서 따로 추가해주는 작업 해야함, principle 사용
     @Override
     public TradePost saveTradePost(CreateTradeBoardRequest request) {
+        
+        Long currentMemberId = SecurityUtil.getCurrentMemberId();
 
-        // 현재는 더미 member
+        Member member = memberService.getMemberById(currentMemberId);
 
-        Member member = Member.builder()
-                .nickname("시현")
-                .email("asdf@naver.com")
-                .password("1234")
-                .provider(Provider.google)
-                .role(Role.MEMBER)
-                .accountId("1")
-                .status(com.alphamaleclub.ucmc.member.domain.Status.active)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        memberRepository.save(member);
         log.info("member = {}", member);
 
         TradePost tradePost = TradePost.builder()
@@ -400,8 +392,7 @@ public class TradePostServiceImpl implements TradePostService {
     @Override
     public void createDummyPost() {
         for (int i = 1; i < 100; i++) {
-            Optional<Member> member = memberRepository.findById(1L);
-            Member member1 = member.orElseThrow();
+            Member member = memberService.getMemberById(1L);
 
             TradePost tradePost = TradePost.builder()
                     .title("test" + i)
@@ -409,7 +400,7 @@ public class TradePostServiceImpl implements TradePostService {
                     .locate("test" + i)
                     .contents("test" + i)
                     .deliveryType(DeliveryType.BOTH)
-                    .member(member1)
+                    .member(member)
                     .build();
             tradePostRepository.save(tradePost);
         }
