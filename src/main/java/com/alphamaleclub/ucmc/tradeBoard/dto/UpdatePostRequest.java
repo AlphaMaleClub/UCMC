@@ -2,7 +2,7 @@ package com.alphamaleclub.ucmc.tradeBoard.dto;
 
 
 import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
-import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
+import com.alphamaleclub.ucmc.tradeBoard.domain.TradeStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdatePostRequest {
 
-    Status status;
+    TradeStatus tradeStatus;
 
     String title;
 

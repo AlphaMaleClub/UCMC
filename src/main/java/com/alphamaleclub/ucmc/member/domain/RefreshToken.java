@@ -1,28 +1,26 @@
 package com.alphamaleclub.ucmc.member.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLRestriction;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLRestriction("isExpired = false")
 public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tokenId;
 
+    @Column(nullable = false, unique = true, length = 2048)
     private String token;
 
     private LocalDateTime createdAt;
 
-    private Boolean isExpired;
+    @Setter
+    private boolean isExpired;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
@@ -31,7 +29,15 @@ public class RefreshToken {
     @PrePersist
     private void onCreate(){
         if(this.createdAt == null) this.createdAt = LocalDateTime.now();
-        if(this.isExpired == null) this.isExpired = false;
+        isExpired = false;
+    }
+
+    @Builder
+    public RefreshToken(String token, LocalDateTime createdAt, boolean isExpired, Member member) {
+        this.token = token;
+        this.createdAt = createdAt;
+        this.isExpired = isExpired;
+        this.member = member;
     }
 
 }

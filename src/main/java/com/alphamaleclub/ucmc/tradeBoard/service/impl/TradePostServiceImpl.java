@@ -5,13 +5,16 @@ import com.alphamaleclub.ucmc.image.domain.PostType;
 import com.alphamaleclub.ucmc.image.domain.ProductImage;
 import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
+import com.alphamaleclub.ucmc.member.services.MemberService;
+import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import com.alphamaleclub.ucmc.member.domain.Provider;
 import com.alphamaleclub.ucmc.member.domain.Role;
 import com.alphamaleclub.ucmc.member.services.MemberService;
+import com.alphamaleclub.ucmc.member.domain.Status;
 import com.alphamaleclub.ucmc.system.exception.tradeboard.PostNotFoundException;
 import com.alphamaleclub.ucmc.system.util.SecurityUtil;
 import com.alphamaleclub.ucmc.tradeBoard.domain.DeliveryType;
-import com.alphamaleclub.ucmc.tradeBoard.domain.Status;
+import com.alphamaleclub.ucmc.tradeBoard.domain.TradeStatus;
 import com.alphamaleclub.ucmc.tradeBoard.domain.TradePost;
 import com.alphamaleclub.ucmc.tradeBoard.dto.*;
 import com.alphamaleclub.ucmc.tradeBoard.repository.TradePostRepository;
@@ -19,6 +22,7 @@ import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageConvertService;
 import com.alphamaleclub.ucmc.tradeBoard.service.ProductImageService;
 import com.alphamaleclub.ucmc.tradeBoard.service.S3StorageService;
 import com.alphamaleclub.ucmc.tradeBoard.service.TradePostService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -47,7 +51,6 @@ public class TradePostServiceImpl implements TradePostService {
     private final ProductImageConvertService productImageConvertService;
     private final ProductImageService productImageService;
     private final S3StorageService s3StorageService;
-
     private final MemberService memberService;
 
     String baseUrl = "https://ucmcbucket.s3.ap-northeast-2.amazonaws.com/";
@@ -192,8 +195,6 @@ public class TradePostServiceImpl implements TradePostService {
 
         Member member = memberService.getMemberById(currentMemberId);
 
-        log.info("member = {}", member);
-
         TradePost tradePost = TradePost.builder()
                 .title(request.getTitle())
                 .price(request.getPrice())
@@ -220,7 +221,7 @@ public class TradePostServiceImpl implements TradePostService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시물이 존재하지 않습니다. ID: " + postNumber));
 
         // 기존 trade post 업데이트
-        tradePost.updateTradePost(request.getStatus(), request.getTitle(), request.getPrice(), request.getLocate(), request.getContent(),request.getDeliveryType(),request.getBumpedCount(),LocalDateTime.now());
+        tradePost.updateTradePost(request.getTradeStatus(), request.getTitle(), request.getPrice(), request.getLocate(), request.getContent(),request.getDeliveryType(),request.getBumpedCount(),LocalDateTime.now());
         TradePost saved = tradePostRepository.save(tradePost);
 
         // 기존 이미지 가져오기
@@ -316,7 +317,7 @@ public class TradePostServiceImpl implements TradePostService {
                 .title(tradePost.getTitle())
                 .content(tradePost.getContents())
                 .price(tradePost.getPrice())
-                .status(tradePost.getStatus())
+                .tradeStatus(tradePost.getTradeStatus())
                 .locate(tradePost.getLocate())
                 .createdAt(tradePost.getCreatedAt())
                 .deliveryType(tradePost.getDeliveryType())
@@ -329,7 +330,7 @@ public class TradePostServiceImpl implements TradePostService {
     }
 
     @Override
-    public TradePostMessageResponse updateOnlyStatusTradePost(Long postId, Status status) {
+    public TradePostMessageResponse updateOnlyStatusTradePost(Long postId, TradeStatus status) {
 
         Optional<TradePost> byId = tradePostRepository.findById(postId);
         TradePost tradePost = byId.orElseThrow();
@@ -366,7 +367,7 @@ public class TradePostServiceImpl implements TradePostService {
             log.info("newBumpedCount = {}", newBumpedCount);
 
 
-            tradePost.updateTradePost(tradePost.getStatus(),tradePost.getTitle(),tradePost.getPrice(),
+            tradePost.updateTradePost(tradePost.getTradeStatus(),tradePost.getTitle(),tradePost.getPrice(),
                     tradePost.getLocate(),tradePost.getContents(),tradePost.getDeliveryType(),newBumpedCount,LocalDateTime.now());
 
             return  TradePostMessageResponse.builder()

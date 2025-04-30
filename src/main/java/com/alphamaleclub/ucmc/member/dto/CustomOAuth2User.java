@@ -1,8 +1,7 @@
 package com.alphamaleclub.ucmc.member.dto;
 
-import com.alphamaleclub.ucmc.member.domain.Role;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 
-@Data
+@Getter
+@Builder
 public class CustomOAuth2User implements OAuth2User {
 
     /*
@@ -22,6 +22,7 @@ public class CustomOAuth2User implements OAuth2User {
         oAuth2User -> SignUpRequestDto 를 사전에 채워둔 상태로
         넘겨주기 위해서 만들었습니다.
      */
+
     private String provider;
     private String realName;
     private String nickname;
@@ -29,20 +30,12 @@ public class CustomOAuth2User implements OAuth2User {
     private String mobile;
 
     @Setter
+    private String loginMethod;
+
+    @Setter
     private String role;
 
     private Map<String, Object> attributes;
-
-    @Builder
-    public CustomOAuth2User(String provider, String realName, String nickname, String email, String mobile,String role, Map<String, Object> attributes) {
-        this.provider = provider;
-        this.realName = realName;
-        this.nickname = nickname;
-        this.email = email;
-        this.mobile = mobile;
-        this.role = role;
-        this.attributes = attributes;
-    }
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -55,6 +48,7 @@ public class CustomOAuth2User implements OAuth2User {
     }
 
     @Override
+    @Deprecated //우리는 이거 직접적으로 쓰지 않음 Security 내부에서 쓰니까 오버라이드 한 것.
     public String getName() {
         return this.email;
     }
