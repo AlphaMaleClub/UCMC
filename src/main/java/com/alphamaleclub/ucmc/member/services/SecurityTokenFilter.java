@@ -32,31 +32,24 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
         String path = request.getRequestURI();
-        String url = request.getRequestURL().toString();
-        log.info("[White Filter 로그임] URL: {}", url);
-
 
         /*
-            로그인,회원가입 요청들이 토큰필터를 타면 깔끔하지 않습니다.
+            로그인,회원가입 요청들이 필터를 타면 깔끔하지 않습니다.
             loadUser 나 loadUserByName 을 타려면 여길 거치면 안됩니다.
-            그래서 관련한 요청들은 모두 화이트리스트에 올려서 제외시켜줍니다.
+            그래서 관련한 요청들은 토큰 필터를 타지 않도록
+            화이트리스트에 올려 제외시킵니다.
         */
 
-        boolean isFiltering = (
+        return (
                 path.startsWith("/api/signup") ||
                 path.startsWith("/api/access-token") ||
-                path.startsWith("/oauth2/initiate") ||
-                path.startsWith("/login/oauth2") ||
-                path.startsWith("/oauth2/authorization") ||
                 path.startsWith("/api/login") ||
-                path.startsWith("/login")
+                path.startsWith("/oauth2/initiate") ||
+                path.startsWith("/oauth2/authorization") ||
+                path.startsWith("/login") ||
+                path.startsWith("/login/oauth2")
         );
 
-        if(!isFiltering) {
-            log.info("this request is Not White Filtering={}", path);
-        }
-
-        return isFiltering;
     }
 
     @Override
@@ -64,7 +57,8 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
 
         //어떤 URL 로 여기 백엔드로 들어오게 되었는지 체크.
         String url = request.getRequestURL().toString();
-        log.info("[Filter 로그임] URL: {}", url);
+        log.info("url = {}", url);
+
 
         //토큰 추출하기
         String accessToken;
@@ -77,7 +71,6 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
         } catch (MissingTokenException | NullPointerException e) {
 
             //헤더에 accessToken이 없는 경우
-            log.warn(e.getMessage());
             log.info("헤더에 accessToken 이 없습니다.");
             failedProcess();
             filterChain.doFilter(request, response);
