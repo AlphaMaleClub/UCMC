@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class StatusUpdateRequest {
 
-    private TradeStatus tradeStatus;
+    private TradeStatus status;
 }

@@ -42,6 +42,7 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
                 path.startsWith("/oauth2/initiate") ||
                 path.startsWith("/login/oauth2/**") ||
                 path.startsWith("/oauth2/authorization/**") ||
+                path.startsWith("/api/trade-posts/**") ||
                 path.startsWith("/api/login") ||
                 path.startsWith("/login")
         );

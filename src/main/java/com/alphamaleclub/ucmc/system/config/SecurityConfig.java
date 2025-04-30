@@ -41,7 +41,8 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         // 로그인 성공시 처리 핸들러
                         .successHandler(customSuccessHandler)
-                        .userInfoEndpoint(userInfo -> userInfo.userService(memberServiceImpl))
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(memberServiceImpl))
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -58,6 +59,8 @@ public class SecurityConfig {
                             .hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/auctions/**")
                             .permitAll()
+                        .requestMatchers("/api/trade-posts/**")
+                        .permitAll()
                         .anyRequest()
                             .authenticated()
                 )

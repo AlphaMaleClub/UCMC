@@ -22,9 +22,11 @@ public interface TradePostService {
 
     GetAllTradePostAndImagesMessageResponse getAllTradePost(int page, String srot);
 
-    TradePostAndProductImageResponse getTradePost(Long postId);
+    TradePost getTradePost(Long postId);
 
-    TradePostMessageResponse updateOnlyStatusTradePost(Long postId, TradeStatus tradeStatus);
+    TradePostAndProductImageResponse getTradePostAndImages(Long postId);
+
+    TradePostMessageResponse updateOnlyStatusTradePost(Long postId, TradeStatus status);
 
     TradePostMessageResponse updateOnlyUpdatedAt(Long postId);
 

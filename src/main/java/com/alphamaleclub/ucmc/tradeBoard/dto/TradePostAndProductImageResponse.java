@@ -18,7 +18,7 @@ public class TradePostAndProductImageResponse {
     String title;
     String content;
     Long price;
-    TradeStatus tradeStatus;
+    TradeStatus status;
     String locate;
     LocalDateTime createdAt;
     String nickName;
