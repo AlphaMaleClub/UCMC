@@ -165,7 +165,7 @@ public class TradePostServiceImpl implements TradePostService {
 
             //s3 업로드
             String imageUrl = s3StorageService.upload(fileData,fileName);
-            System.out.println(imageUrl);
+            log.info("imageUrl = {}", imageUrl);
 
             // product image 객체 생성
             ProductImage productImage = productImageService.createTradeProductImage(tradePost.getPostId(), imageUrl);
@@ -244,7 +244,7 @@ public class TradePostServiceImpl implements TradePostService {
 
             //s3 업로드
             String imageUrl = s3StorageService.upload(fileData,fileName);
-            System.out.println(imageUrl);
+            log.info("imageUrl = {}", imageUrl);
 
             // product image 객체 생성
             ProductImage productImage = productImageService.createTradeProductImage(tradePost.getPostId(), imageUrl);

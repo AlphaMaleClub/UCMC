@@ -26,7 +26,7 @@ public class TradeBoardController {
     @GetMapping(path = "/trade-posts/top10")
     public ResponseEntity<Top10PostResponse> getTop10Post() {
 
-        System.out.println("백엔드 도착");
+//        log.info("백엔드 도착");
         Top10PostResponse result = tradePostService.findTop10();
 
         return ResponseEntity.ok(result);
