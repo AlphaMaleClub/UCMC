@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auctions/**")
                             .permitAll()
                         .requestMatchers("/api/trade-posts/**")
-                        .permitAll()
+                            .permitAll()
                         .anyRequest()
                             .authenticated()
                 )
