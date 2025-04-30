@@ -53,7 +53,7 @@ public class SecurityTokenFilter extends OncePerRequestFilter {
         );
 
         if(!isFiltering) {
-            log.info("this request is On White Filter={}", path);
+            log.info("this request is Not White Filtering={}", path);
         }
 
         return isFiltering;

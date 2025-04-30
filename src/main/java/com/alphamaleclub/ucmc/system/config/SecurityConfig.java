@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -44,23 +45,102 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(memberServiceImpl))
                 )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID","accessToken","refreshToken")
-                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/initiate","/api/signup","/api/access-token")
-                            .permitAll()
-                        .requestMatchers(("/logout"))
-                            .hasAnyAuthority("MEMBER", "ADMIN")
+                    // 관리자 설정
                         .requestMatchers("/admin/**")
                             .hasAnyAuthority("ADMIN")
-                        .requestMatchers("/api/auctions/**")
-                            .permitAll()
-                        .requestMatchers("/api/trade-posts/**")
-                            .permitAll()
+
+                    // auth, member 설정
+                        .requestMatchers(HttpMethod.GET
+                                , "/oauth2/initiate"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST
+                                , "/api/signup"
+                                , "/api/access-token"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST
+                                , "/api/logout"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                    // auction 설정.
+                        .requestMatchers(HttpMethod.GET
+                                , "/api/auctions"
+                                , "/api/auctions/*"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST
+                                , "/api/auctions"
+                                , "/api/auctions/*/bid"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.PATCH
+                                , "/api/auctions/*"
+                                , "/api/auctions/*/images"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE
+                                , "/api/auctions/*"
+                                , "/api/auctions/*/images"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                    //trade-post 설정.
+                        .requestMatchers(HttpMethod.GET
+                                , "/trade-posts"
+                                , "/api/trade-posts/top10"
+                                , "/api/trade-posts/*"
+                                , "/api/trade-posts/*/thumbnail"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST
+                                , "/api/trade-posts"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT
+                                , "/api/trade-posts/*"
+                                , "/api/trade-posts/*/status"
+                                , "/api/trade-posts/*/bump"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE
+                                , "/api/trade-posts/*"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                    // comment 설정
+                        .requestMatchers(HttpMethod.GET
+                                , "/api/posts/*/comments"
+                        ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST
+                                , "/api/posts/*/comments"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT
+                                , "/api/posts/*/comments"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE
+                                , "/api/posts/*/comments/*"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                    // chat 관련 권한 설정
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/chatroom"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/chatroom",
+                                "/api/chatmessage/*"
+                        ).hasAnyAuthority("MEMBER", "ADMIN")
+
+                        /* to 영훈 notice
+                            @MessageMapping("/{chatRoomId}") 이거는 여기 걸러지는거 아니니까 안썼습니다.
+                        */
+
+
+
+
                         .anyRequest()
                             .authenticated()
                 )
