@@ -1,12 +1,11 @@
 package com.alphamaleclub.ucmc.member.dto;
 
-import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -21,6 +20,15 @@ public class SignUpRequest {
     private String email;
     private String mobile;
     private String provider;
+
+    public Map<String, String> getFieldMap() {
+        return Map.of("accountId", this.accountId,
+                "password", this.password,
+                "nickname", this.nickname,
+                "email", this.email,
+                "mobile", this.mobile,
+                "provider", this.provider);
+    }
 
     public static SignUpRequest fromCustomOAuth2UserTestOnly(CustomOAuth2User user) {
         return SignUpRequest.builder()

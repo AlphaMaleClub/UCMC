@@ -1,26 +1,20 @@
 package com.alphamaleclub.ucmc.member.services;
 
 import com.alphamaleclub.ucmc.member.Repositorty.MemberRepository;
-import com.alphamaleclub.ucmc.member.Repositorty.RefreshTokenRepository;
 import com.alphamaleclub.ucmc.member.domain.Member;
-import com.alphamaleclub.ucmc.member.domain.Provider;
 import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.dto.CustomUserDetails;
 import com.alphamaleclub.ucmc.member.dto.SignUpRequest;
 import com.alphamaleclub.ucmc.member.services.oauth2extractor.Oauth2UserInfoExtractor;
 import com.alphamaleclub.ucmc.system.exception.ExceptionMessage;
+import com.alphamaleclub.ucmc.system.exception.auth.EmptyRequestException;
 import com.alphamaleclub.ucmc.system.exception.auth.InvalidOAuth2ProviderException;
-import com.alphamaleclub.ucmc.system.exception.auth.MissingTokenException;
 import com.alphamaleclub.ucmc.system.exception.member.UserAlreadyExistsException;
 import com.alphamaleclub.ucmc.system.exception.member.UserNotFoundException;
 import com.alphamaleclub.ucmc.system.util.SecurityUtil;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -82,6 +76,8 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
 
     @Override
     public void signUp(SignUpRequest signUpRequest) {
+
+
 
         checkSignUpIntegrity(signUpRequest);
 
@@ -146,6 +142,22 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     }
 
     private void checkSignUpIntegrity(SignUpRequest signUpRequest) {
+
+        signUpRequest.getFieldMap().forEach((k, v) -> {
+
+            // 문자가 비었는지
+            if(v == null){
+                throw new EmptyRequestException(ExceptionMessage.Auth.EMPTY_REQUEST + "EmptyKey: " + k + "EmptyValue: " + v);
+            } else {
+                v = v.replace("\\s+", "");
+            }
+
+            // 문자열 길이가 0 이거나 해당 언어로 쓰여진게 아닐경우
+            if(v.isEmpty() || !v.matches("^[a-zA-Z0-9_-]*$")){
+                throw new EmptyRequestException(ExceptionMessage.Auth.EMPTY_REQUEST + "EmptyValue: " + k);
+            }
+
+        });
 
         String accountId = signUpRequest.getAccountId();
         String email = signUpRequest.getEmail();

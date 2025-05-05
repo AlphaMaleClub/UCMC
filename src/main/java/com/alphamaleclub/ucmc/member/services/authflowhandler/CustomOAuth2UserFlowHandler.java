@@ -60,6 +60,8 @@ public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
 
     private String signupProcess(CustomOAuth2User user) {
 
+
+
         return UriComponentsBuilder
                 .fromUriString(SIGNUP_SUCCESS_URL)
                 .queryParam("provider", user.getProvider())
