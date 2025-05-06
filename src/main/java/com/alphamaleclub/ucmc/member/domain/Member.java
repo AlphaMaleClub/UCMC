@@ -72,7 +72,6 @@ public class Member {
                 .collect(Collectors.toList());
     };
 
-
     @Builder
     public Member(String accountId, String password, String email, String nickname, String realName, String mobile, Role role, Status status, Provider provider, LocalDateTime createdAt) {
 

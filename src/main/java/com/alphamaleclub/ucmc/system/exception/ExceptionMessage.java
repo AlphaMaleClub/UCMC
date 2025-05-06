@@ -47,7 +47,7 @@ public class ExceptionMessage {
         public static final String USER_NOT_FOUND_EXCEPTION = "회원이 존재하지 않습니다.";
         public static final String LOGIN_REQUIRED_EXCEPTION = "로그인 후 이용 가능합니다.";
         public static final String MEMBER_NOT_FOUND = "대상 멤버가 없습니다.";
-
+        public static final String BAD_SIGNUP_REQUEST = "SignUpRequest 에 변조된 필드가 포함됨";
     }
 
 

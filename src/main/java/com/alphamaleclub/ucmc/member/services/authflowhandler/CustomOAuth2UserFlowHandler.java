@@ -1,7 +1,9 @@
 package com.alphamaleclub.ucmc.member.services.authflowhandler;
 
+import com.alphamaleclub.ucmc.member.domain.SignUpTempMember;
 import com.alphamaleclub.ucmc.member.dto.CustomOAuth2User;
 import com.alphamaleclub.ucmc.member.services.MemberService;
+import com.alphamaleclub.ucmc.system.exception.member.UserNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +48,13 @@ public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
         switch (super.intent){
 
             case "login" -> {
+
+                SignUpTempMember tempMember = checkTempUser(user);
+
+                if(tempMember != null){
+                    return makeURL(tempMember);
+                }
+
                 log.info("login Failure Banned or Member Not Found");
                 return LOGIN_FAILED_URL;
             }
@@ -58,18 +67,40 @@ public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
         return null;
     }
 
-    private String signupProcess(CustomOAuth2User user) {
+    private SignUpTempMember checkTempUser(CustomOAuth2User user) {
 
-
-
-        return UriComponentsBuilder
-                .fromUriString(SIGNUP_SUCCESS_URL)
-                .queryParam("provider", user.getProvider())
-                .queryParam("realName", URLEncoder.encode(Optional.ofNullable(user.getRealName()).orElse(""), StandardCharsets.UTF_8))
-                .queryParam("nickname", URLEncoder.encode(Optional.ofNullable(user.getNickname()).orElse(""), StandardCharsets.UTF_8))
-                .queryParam("email", Optional.ofNullable(user.getEmail()).orElse(""))
-                .build()
-                .toUriString();
+        try{
+            return memberService.getTempUserByEmail(user.getEmail());
+        }catch(UserNotFoundException e){
+            log.info("this Member intent does not invalid");
+        }
+        return null;
 
     }
+
+    private String signupProcess(CustomOAuth2User user) {
+
+        SignUpTempMember tempMember;
+
+        tempMember = checkTempUser(user);
+
+        if(tempMember == null){
+            tempMember = memberService.tempUserSave(user);
+        }
+
+        return makeURL(tempMember);
+
+    }
+
+    private String makeURL(SignUpTempMember tempMember) {
+        return UriComponentsBuilder
+                .fromUriString(SIGNUP_SUCCESS_URL)
+                .queryParam("provider", tempMember.getProvider())
+                .queryParam("realName", URLEncoder.encode(Optional.ofNullable(tempMember.getRealName()).orElse(""), StandardCharsets.UTF_8))
+                .queryParam("nickname", URLEncoder.encode(Optional.ofNullable(tempMember.getNickname()).orElse(""), StandardCharsets.UTF_8))
+                .queryParam("email", Optional.ofNullable(tempMember.getEmail()).orElse(""))
+                .build()
+                .toUriString();
+    }
+
 }

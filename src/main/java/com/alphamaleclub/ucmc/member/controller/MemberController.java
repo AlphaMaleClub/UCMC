@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -34,12 +35,14 @@ public class MemberController {
     public ResponseEntity<?> initHandler(@RequestParam("intent") String intent, @RequestParam("provider") String provider, HttpServletResponse response) throws IOException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info("🔐 인증 객체: {}", auth);
-        log.info("🔐 isAuthenticated: {}", auth.isAuthenticated());
-        log.info("🔐 인증 클래스: {}", auth.getClass().getSimpleName());
+
+        //아래 Test 용 로그 배포시 삭제
+        log.info("인증 객체: {}", auth);
+        log.info("isAuthenticated: {}", auth.isAuthenticated());
+        log.info("인증 클래스: {}", auth.getClass().getSimpleName());
 
         if (auth.isAuthenticated() && auth instanceof CustomUserDetails) {
-            log.warn("❌ 이미 로그인된 사용자입니다. 접근 차단.");
+            log.warn("이미 로그인된 사용자입니다. 접근 차단.");
             return ResponseEntity.status(403).body("이미 로그인된 사용자는 접근할 수 없습니다.");
         }
 
@@ -66,7 +69,7 @@ public class MemberController {
     }
 
     @PostMapping("/api/signup")
-    public ResponseEntity<?> signUp (@RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<?> signUp (@RequestBody @Validated SignUpRequest signUpRequest){
 
         memberService.signUp(signUpRequest);
 

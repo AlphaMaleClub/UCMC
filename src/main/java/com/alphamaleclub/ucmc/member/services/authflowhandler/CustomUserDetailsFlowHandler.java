@@ -69,6 +69,8 @@ public class CustomUserDetailsFlowHandler extends AuthFlowHandler {
 
     private String loginSuccess(HttpServletResponse response,CustomUserDetails userDetails) {
 
+
+
         Member member = memberService.getMemberById(SecurityUtil.getCurrentMemberId());
 
         tokenManager.expireRefreshToken(member);
