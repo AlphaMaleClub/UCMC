@@ -100,7 +100,7 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
     private SignUpTempMember checkTempUser(SignUpRequest signUpRequest) {
 
         //OAuth2.0 그냥 폼 회원가입을 시도한 사람이라면 여기 안탐.
-        if (signUpRequest.getProvider().equals("none")){
+        if (signUpRequest.getProvider().equals("none") && signUpRequest.getTempMemberNumber().equals("-1")) {
             return null;
         }
 
@@ -216,16 +216,13 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
 
             //provider 가 none 이면 모든 필드값이 비어있으면 절대 안됨.
             signUpRequest.getFieldMap().forEach((k, v) -> {
-
-                v = v.replaceAll("\\s+", "");
-
                 // 문자가 비었는지
-                if(v.isEmpty()){
+                if(v.isEmpty() || v.replaceAll("\\s+", "").isEmpty()){
                     throw new EmptyRequestException(ExceptionMessage.Auth.EMPTY_REQUEST + "EmptyKey: " + k + "EmptyValue: " + v);
                 }
 
                 //password 나 nickname 이라면 여기 안해도 됨
-                boolean shouldSkipRegex = (k.equals("nickname") || k.equals("password"));
+                boolean shouldSkipRegex = (k.equals("nickname") || k.equals("password") || k.equals("email"));
 
                 //스킵대상이거나 필드값이 제대로 됐으면 통과
                 if(!shouldSkipRegex && !v.matches("^[a-zA-Z0-9_-]*$")){
@@ -238,11 +235,11 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
 
         String accountId = signUpRequest.getAccountId();
         String email = signUpRequest.getEmail();
-        String mobile = signUpRequest.getMobile();
+//        String mobile = signUpRequest.getMobile();
 
         boolean accountsExists = memberRepository.findByAccountId(accountId).isPresent();
         boolean emailExists = memberRepository.findByEmail(email).isPresent();
-        boolean mobileExists = memberRepository.findByMobile(mobile).isPresent();
+//        boolean mobileExists = memberRepository.findByMobile(mobile).isPresent();
 
         if(accountsExists){
             throw new UserAlreadyExistsException(ExceptionMessage.Member.USER_ALREADY_EXIST + accountId);
@@ -250,9 +247,10 @@ public class MemberServiceImpl extends DefaultOAuth2UserService implements Membe
         if(emailExists){
             throw new UserAlreadyExistsException(ExceptionMessage.Member.USER_ALREADY_EXIST + email);
         }
-        if(mobile != null && mobileExists){
-            throw new UserAlreadyExistsException(ExceptionMessage.Member.USER_ALREADY_EXIST + mobile);
-        }
+
+//        if(mobile != null && mobileExists){
+//            throw new UserAlreadyExistsException(ExceptionMessage.Member.USER_ALREADY_EXIST + mobile);
+//        }
 
     }
 

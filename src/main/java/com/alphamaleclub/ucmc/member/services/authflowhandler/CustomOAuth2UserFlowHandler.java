@@ -99,6 +99,7 @@ public class CustomOAuth2UserFlowHandler extends AuthFlowHandler {
                 .queryParam("realName", URLEncoder.encode(Optional.ofNullable(tempMember.getRealName()).orElse(""), StandardCharsets.UTF_8))
                 .queryParam("nickname", URLEncoder.encode(Optional.ofNullable(tempMember.getNickname()).orElse(""), StandardCharsets.UTF_8))
                 .queryParam("email", Optional.ofNullable(tempMember.getEmail()).orElse(""))
+                .queryParam("memberNum",tempMember.getId())
                 .build()
                 .toUriString();
     }

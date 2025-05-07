@@ -111,11 +111,11 @@ public class Member {
 
     public static Member signUpRequestToMember(SignUpRequest signUpRequest) {
         return Member.builder()
-                .accountId(signUpRequest.getAccountId())
-                .password(signUpRequest.getPassword())
+                .accountId((signUpRequest.getProvider().equals("none")) ? signUpRequest.getAccountId() : null)
+                .password((signUpRequest.getProvider().equals("none")) ? signUpRequest.getPassword() : null)
                 .nickname(signUpRequest.getNickname())
                 .email(signUpRequest.getEmail())
-                .mobile(signUpRequest.getMobile())
+//                .mobile(signUpRequest.getMobile())
                 .provider(Provider.fromString(signUpRequest.getProvider()))
                 .build();
     }
